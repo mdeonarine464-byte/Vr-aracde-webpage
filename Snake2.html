@@ -378,9 +378,18 @@
     pointer-events: none;
     box-shadow: 0 0 12px rgba(190, 74, 224, 0.5);
 }
-    </style>
+    
+        body.embedded { align-items: center; justify-content: center; overflow: hidden; }
+        body.embedded #game-layout {
+            transform: scale(0.72);
+            transform-origin: center center;
+            width: 1000px;
+        }
+
+</style>
 </head>
 <body onmousemove="checkPause(event)">
+<script>const embedded = new URLSearchParams(window.location.search).get('embedded') === '1'; if (embedded) document.body.classList.add('embedded');</script>
 <div id="title-screen">
   <canvas id="title-bg" width="400" height="400"></canvas>
 

@@ -1,0 +1,3291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Snake 2: RPG Snake</title>
+    <style>
+        :root {
+            --gold: #ffd700;
+            --premium: #00fbff;
+            --dark: #080808;
+            --xp: #4ecca3;
+            --pink: #ff00ff;
+            --soul: #a020f0;
+            --hellfire: #ff4500;
+            --white: #ffffff;
+            --glow-gold: 0 0 6px rgba(255, 215, 0, 0.7), 0 0 15px rgba(255, 215, 0, 0.45);
+            --glow-premium: 0 0 6px rgba(0, 251, 255, 0.75), 0 0 16px rgba(0, 251, 255, 0.45);
+            --glow-xp: 0 0 6px rgba(78, 204, 163, 0.75), 0 0 14px rgba(78, 204, 163, 0.45);
+            --glow-pink: 0 0 6px rgba(255, 0, 255, 0.75), 0 0 14px rgba(255, 0, 255, 0.45);
+            --glow-soul: 0 0 6px rgba(160, 32, 240, 0.8), 0 0 14px rgba(160, 32, 240, 0.45);
+            --glow-hellfire: 0 0 6px rgba(255, 69, 0, 0.8), 0 0 14px rgba(255, 69, 0, 0.45);
+            --glow-white: 0 0 6px rgba(255, 255, 255, 0.8), 0 0 14px rgba(255, 255, 255, 0.5);
+        }
+        .neon-gold { text-shadow: var(--glow-gold); }
+        .neon-premium { text-shadow: var(--glow-premium); }
+        .neon-xp { text-shadow: var(--glow-xp); }
+        .neon-pink { text-shadow: var(--glow-pink); }
+        .neon-soul { text-shadow: var(--glow-soul); }
+        .neon-hellfire { text-shadow: var(--glow-hellfire); }
+        .neon-white { text-shadow: var(--glow-white); }
+
+        [style*="color:var(--gold)"], [style*="color: var(--gold)"], .btn-price { text-shadow: var(--glow-gold); }
+        [style*="color:var(--premium)"], [style*="color: var(--premium)"], .stat-val:not([style*="color:"]), #title-ui h1 { text-shadow: var(--glow-premium); }
+        [style*="color:var(--xp)"], [style*="color: var(--xp)"], #xp-multi-disp, #sp-disp { text-shadow: var(--glow-xp); }
+        [style*="color:var(--pink)"], [style*="color: var(--pink)"] { text-shadow: var(--glow-pink); }
+        [style*="color:var(--soul)"], [style*="color: var(--soul)"], .lvl-ready, #phase-status { text-shadow: var(--glow-soul); }
+        [style*="#ff4500"], [style*="var(--hellfire)"] { text-shadow: var(--glow-hellfire); box-shadow: 0 0 10px rgba(255, 69, 0, 0.35); }
+        body, [style*="color:white"], [style*="color: white"], [style*="color:#fff"], [style*="color: #fff"], [style*="color:#ffffff"], [style*="color: #ffffff"] { text-shadow: var(--glow-white); }
+
+        [style*="border-left-color: var(--gold)"], [style*="border-left:4px solid var(--gold)"], .classic-btn:hover { box-shadow: 0 0 10px rgba(255, 215, 0, 0.3); }
+        [style*="border-left-color: var(--premium)"], [style*="border-left:4px solid var(--premium)"] { box-shadow: 0 0 10px rgba(0, 251, 255, 0.2); }
+        [style*="border-left-color: var(--xp)"], [style*="border-left:4px solid var(--xp)"] { box-shadow: 0 0 10px rgba(78, 204, 163, 0.25); }
+        [style*="border-left-color: var(--pink)"], [style*="border-left:4px solid var(--pink)"] { box-shadow: 0 0 10px rgba(255, 0, 255, 0.25); }
+        [style*="border-left-color: var(--soul)"], [style*="border-left:4px solid var(--soul)"] { box-shadow: 0 0 10px rgba(160, 32, 240, 0.3); }
+        [style*="border-left-color: #ff4500"] { box-shadow: 0 0 10px rgba(255, 69, 0, 0.4); }
+        #main-shop-panel > .panel > .stat-label,
+        #black-market-panel > .panel > .stat-label,
+        #permanent-skills-panel > .stat-label,
+        #save-code-panel > .stat-label {
+            color: #cfd3d6;
+            text-shadow: var(--glow-white);
+            letter-spacing: 0.6px;
+        }
+        #main-shop-panel .classic-btn,
+        #main-shop-panel .bank-btn,
+        #black-market-panel .classic-btn,
+        #black-market-panel .bank-btn,
+        #permanent-skills-panel .classic-btn,
+        #soul-altar .classic-btn,
+        #shop-tabs .tab-btn {
+            text-shadow: var(--glow-white);
+        }
+        #soul-altar .accordion.soul-purple-title { text-shadow: var(--glow-soul); }
+        #soul-altar .accordion.soul-gold-title { text-shadow: var(--glow-gold); }
+        #soul-altar .upgrade-desc,
+        #soul-altar .stat-label[id$="-desc"] {
+            color: #ddd;
+            text-shadow: var(--glow-white);
+        }
+        body { display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; margin: 0; background: var(--dark); color: white; font-family: 'Segoe UI', sans-serif; overflow-y: auto; overflow-x: hidden; }
+        #game-layout { display: flex; gap: 20px; padding: 25px; background: #111; border-radius: 20px; border: 2px solid #333; position: relative; width: 1000px; justify-content: center; }
+        .sidebar { width: 250px; display: flex; flex-direction: column; gap: 12px; }
+        .panel { background: #151515; padding: 12px; border-radius: 10px; border-left: 4px solid var(--premium); transition: 0.3s; }
+        .stat-label { font-size: 0.7em; color: #888; text-transform: uppercase; }
+        .stat-val { display: block; font-size: 1.2em; font-weight: bold; color: var(--premium); }
+        
+        .lvl-ready { color: var(--soul) !important; cursor: pointer; text-shadow: 0 0 10px var(--soul); animation: pulse-purple 2s infinite; }
+        @keyframes pulse-purple { 0% { opacity: 0.8; } 50% { opacity: 1; } 100% { opacity: 0.8; } }
+
+        #game-container { position: relative; width: 400px; height: 400px; border-radius: 8px; border: 4px solid #222; background: #000; }
+        #pause-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; color: white; font-weight: bold; z-index: 100; pointer-events: none; }
+        
+        .classic-btn { background: #222; border: 1px solid #444; color: white; padding: 10px; border-radius: 5px; cursor: pointer; text-align: left; font-size: 0.85em; display: flex; justify-content: space-between; width: 100%; margin-bottom: 8px; }
+        .classic-btn:hover { border-color: var(--gold); background: #282828; }
+        .classic-btn.locked-choice { opacity: 0.45; border-color: #7a1f1f; background: #2b1212; color: #ffb3b3; cursor: not-allowed; position: relative; }
+        .classic-btn.locked-choice:hover { border-color: #7a1f1f; background: #2b1212; }
+        .btn-price { color: var(--gold); font-weight: bold; }
+        
+        .bank-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 8px; }
+        .bank-btn { background: #222; border: 1px solid #444; color: white; cursor: pointer; padding: 10px 5px; font-size: 0.75em; text-align: center; border-radius: 5px; }
+        
+        .color-grid-scroll { height: 110px; overflow-y: auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding-right: 5px; margin-top:8px; }
+        .color-grid-scroll::-webkit-scrollbar { width: 4px; }
+        .color-grid-scroll::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
+        .color-opt { height: 35px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: bold; color: #000; border: 1px solid rgba(255,255,255,0.1); }
+        .aura-text { text-shadow: 0 0 5px white; color: #fff; font-style: italic; }
+
+        .xp-bg { background: #333; height: 8px; border-radius: 4px; margin-top: 8px; }
+        #xp-fill { background: var(--xp); height: 100%; width: 0%; border-radius: 4px; transition: width 0.3s; }
+        .danger-btn { background: #440000; color: #ff6666; border: 1px solid #770000; padding: 8px; border-radius: 5px; cursor: pointer; width: 100%; margin-top: 5px; font-size: 0.7em; font-weight: bold; }
+        .title-return-btn { background: #0e334d; color: #8fd6ff; border: 1px solid #2e75a5; }
+        
+        #modal-shield { position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(0,0,0,0.95); z-index: 2000; display: none; justify-content: center; align-items: center; }
+        #ending-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.94); z-index: 2200; display: none; justify-content: center; align-items: center; text-align: center; cursor: pointer; }
+        #ending-overlay-content { max-width: 520px; padding: 28px 30px; border: 2px solid var(--premium); border-radius: 12px; background: #0f0f0f; box-shadow: 0 0 18px rgba(0, 251, 255, 0.25); }
+        #ending-overlay-text { color: #9feaff; font-size: 1.1em; margin: 0 0 12px; line-height: 1.45; }
+        #ending-overlay-prompt { color: #ddd; margin: 0; font-size: 0.86em; text-transform: uppercase; letter-spacing: 1px; }
+        #payment-modal { background: #1a1a1a; padding: 35px; border-radius: 15px; border: 2px solid var(--gold); text-align: center; width: 320px; }
+        #payment-modal input { width: 90%; padding: 10px; margin: 15px 0; background: #333; color: white; text-align: center; font-size: 1.2em; }
+        #title-screen {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle, #050505, #000);
+  z-index: 9000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#title-bg {
+  position: absolute;
+  opacity: 0.15;
+  filter: blur(0.5px);
+}
+
+#title-ui {
+  position: relative;
+  text-align: center;
+  z-index: 2;
+}
+
+#title-ui h1 {
+  font-size: 3.8em;
+  margin: 0;
+  color: var(--premium);
+  text-shadow: 0 0 25px var(--premium);
+}
+
+#title-ui h2 {
+  letter-spacing: 4px;
+  margin: 5px 0 15px;
+  color: #888;
+}
+
+.lore {
+  font-size: 0.75em;
+  color: #666;
+  margin-bottom: 15px;
+  font-style: italic;
+}
+
+#title-save-box {
+  width: 260px;
+  height: 50px;
+  background: #000;
+  border: 1px solid #222;
+  color: var(--xp);
+  font-family: monospace;
+  font-size: 10px;
+  padding: 6px;
+  resize: none;
+  margin-bottom: 15px;
+}
+
+.press-any {
+  font-size: 0.8em;
+  color: white;
+  animation: blink 1.2s infinite;
+}
+
+@keyframes blink {
+  0%,100% { opacity: 0.2 }
+  50% { opacity: 1 }
+}
+.title-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.title-buttons button {
+  width: 200px;
+  margin: 0 auto;
+  padding: 10px;
+  background: #111;
+  border: 1px solid #333;
+  color: #aaa;
+  font-size: 0.75em;
+  border-radius: 6px;
+  cursor: default;
+}
+.title-buttons a {
+  width: 200px;
+  margin: 0 auto;
+  padding: 10px;
+  background: #111;
+  border: 1px solid #333;
+  color: #aaa;
+  font-size: 0.75em;
+  border-radius: 6px;
+  display: block;           
+  text-align: center;      
+  text-decoration: none;    
+  box-sizing: border-box;   
+  cursor: pointer;          
+}
+.tab-btn {
+    flex: 1;
+    padding: 6px;
+    background: #111;
+    border: 1px solid #333;
+    color: #aaa;
+    font-size: 0.75em;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: center;
+}
+.tab-btn.active {
+    background: var(--gold);
+    color: black;
+    border-color: var(--gold);
+}
+.tab-btn.black-market {
+    color: var(--soul);
+    border-color: rgba(160, 32, 240, 0.7);
+}
+.tab-btn.black-market.active {
+    background: var(--soul);
+    border-color: var(--soul);
+    color: white;
+}
+.tab-btn.black-market.locked {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+.accordion {
+  background-color: #151515;;
+  color: white;
+  cursor: pointer;
+  padding: 8px;
+  width: 100%;
+  border: none;
+  text-align: left;
+  outline: none;
+  font-size: 16px;
+  margin-bottom: 2px;
+}
+
+.panel-content {
+  display: none;
+  padding: 5px 10px;
+  background-color: #151515;
+  overflow: hidden;
+}
+.upgrade-desc {
+  display: block;
+  margin: -2px 0 8px;
+  color: #ddd;
+  text-transform: none;
+  font-size: 0.72em;
+}
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9500;
+}
+
+.modal-content {
+    background: #111;
+    color: white;
+    padding: 20px;
+    border: 2px solid purple;
+    max-width: 300px;
+    text-align: left;
+}
+.advanced-upload {
+    width: 100%;
+    font-size: 0.72em;
+    color: #ddd;
+}
+.option-row {
+    margin-bottom: 10px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.option-label {
+    font-size: 0.78em;
+    color: #bbb;
+    min-width: 120px;
+}
+.switch-btn {
+    background: #232323;
+    border: 1px solid #555;
+    color: #eee;
+    border-radius: 5px;
+    padding: 6px 10px;
+    cursor: pointer;
+    font-size: 0.75em;
+}
+.switch-btn.active {
+    border-color: var(--xp);
+    color: var(--xp);
+}
+.custom-key {
+    width: 56px;
+    background: #0b0b0b;
+    border: 1px solid #333;
+    color: #fff;
+    border-radius: 4px;
+    padding: 5px;
+    text-align: center;
+    text-transform: uppercase;
+    font-size: 0.75em;
+}
+.neon-off *, .neon-off *::before, .neon-off *::after {
+    text-shadow: none !important;
+    box-shadow: none !important;
+}
+
+.credits-scroll {
+    height: 150px;
+    overflow: hidden;
+    border-top: 1px solid rgba(255,255,255,0.15);
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+    padding: 10px 0;
+    margin: 10px 0 14px;
+}
+
+.credits-roll {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.9em;
+    line-height: 1.65;
+    transform: translateY(0);
+}
+
+.credits-section-title {
+    text-align: center;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #9feaff;
+    margin: 10px 0 4px;
+}
+
+.credits-roll.scrolling {
+    animation: creditsRoll 40s linear forwards;
+}
+
+@keyframes creditsRoll {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-100%); }
+}
+
+.soul-anchor-toast {
+    position: absolute;
+    top: 46%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 10px 16px;
+    border: 2px solid #f4a6ff;
+    border-radius: 8px;
+    background: rgba(32, 0, 45, 0.9);
+    color: #ffd9ff;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    font-size: 0.86em;
+    text-shadow: 0 0 8px rgba(244, 166, 255, 0.7);
+    z-index: 160;
+    display: none;
+    pointer-events: none;
+    box-shadow: 0 0 12px rgba(190, 74, 224, 0.5);
+}
+    </style>
+</head>
+<body onmousemove="checkPause(event)">
+<div id="title-screen">
+  <canvas id="title-bg" width="400" height="400"></canvas>
+
+  <div id="title-ui">
+    <h1>Snake 2</h1>
+
+    <p class="lore">
+      A forgotten serpent grows beyond the grid.<br>
+      Prestige bends reality. Souls remember.
+    </p>
+
+    <textarea id="title-save-box" placeholder="Paste Save Code (Optional)"></textarea>
+<div class="press-any">PRESS START</div>
+    <div class="title-buttons">
+  <button id="start-btn" onclick="startGame()">START</button>
+<a id="btn-opt1" href = "https://multiplayer-snake-2-18950284.codehs.me/index.html">MULTIPLAYER</a>
+  <button id="btn-achievements" onclick="openAchievements()">Achievements</button>
+  <button id="btn-credits" onclick="openCredits()">CREDITS</button>
+  <button id="btn-opt2" onclick="openOptions()">Options</button>
+  <button onclick="openTutorial()">Tutorial</button>
+</div>
+
+<div id="tutorial-modal" class="modal">
+    <div class="modal-content">
+        <h2 id="tutorial-title">Tutorial</h2>
+        <p id="tutorial-text">
+            • Move with your selected control scheme (Arrow Keys by default).<br>
+            • Eat apples for Gold + XP. Every level gives +1 SP and higher XP scaling.<br>
+            • Spend SP in Permanent Skills to increase Speed, Start Size, and Growth.<br>
+            • Soul powers unlock at Level 10. Rebirth grants shards for permanent upgrades.<br>
+            • Buffs are run-only, but skins/upgrades persist between runs.<br>
+            • Press your Phase key (Space by default) after unlocking Phase Shift.<br>
+            • Save/Load with Export/Import code to keep progress safe.
+        </p>
+        <button onclick="closeTutorial()">Close</button>
+    </div>
+</div>
+<div id="achievements-modal" class="modal">
+    <div class="modal-content" style="max-width:420px; border-color:var(--gold);">
+        <h2 style="margin-top:0; color:var(--gold);">Achievements</h2>
+        <div id="achievements-list" style="font-size:0.82em; line-height:1.6;"></div>
+        <button onclick="closeAchievements()">Close</button>
+    </div>
+</div>
+<div id="options-modal" class="modal">
+    <div class="modal-content" style="max-width:460px; border-color:var(--xp);">
+        <h2 style="margin-top:0; color:var(--xp);">Options</h2>
+        <div class="option-row">
+            <span class="option-label">Controls</span>
+            <button class="switch-btn" id="control-arrows" onclick="setControlPreset('arrows')">Arrow Keys</button>
+            <button class="switch-btn" id="control-wasd" onclick="setControlPreset('wasd')">WASD</button>
+            <button class="switch-btn" id="control-uhjk" onclick="setControlPreset('uhjk')">UHJK</button>
+            <button class="switch-btn" id="control-custom" onclick="setControlPreset('custom')">Custom</button>
+        </div>
+        <div class="option-row" id="custom-control-row">
+            <span class="option-label">Custom Keys</span>
+            <label style="font-size:0.72em;">L <input id="custom-left" class="custom-key" maxlength="12" oninput="updateCustomControl('left', this.value)"></label>
+            <label style="font-size:0.72em;">U <input id="custom-up" class="custom-key" maxlength="12" oninput="updateCustomControl('up', this.value)"></label>
+            <label style="font-size:0.72em;">R <input id="custom-right" class="custom-key" maxlength="12" oninput="updateCustomControl('right', this.value)"></label>
+            <label style="font-size:0.72em;">D <input id="custom-down" class="custom-key" maxlength="12" oninput="updateCustomControl('down', this.value)"></label>
+        </div>
+        <div class="option-row">
+            <span class="option-label">Phase Key</span>
+            <input id="phase-key-input" class="custom-key" maxlength="12" oninput="updatePhaseKey(this.value)" placeholder="space">
+        </div>
+        <div class="option-row">
+            <span class="option-label">Music</span>
+            <button class="switch-btn" id="music-toggle-btn" onclick="toggleMusicEnabled()"></button>
+        </div>
+        <div class="option-row">
+            <span class="option-label">Neon Effects</span>
+            <button class="switch-btn" id="neon-toggle-btn" onclick="toggleNeonEnabled()"></button>
+        </div>
+        <div class="option-row">
+            <span class="option-label">Language</span>
+            <select id="language-select" class="switch-btn" onchange="setLanguage(this.value)">
+                <option value="en">English</option>
+                <option value="es">Español</option>
+            </select>
+        </div>
+        <div class="option-row">
+            <span class="option-label">Advanced</span>
+            <button class="switch-btn active" onclick="openAdvancedOptions()">Open Advanced Options</button>
+        </div>
+        <button onclick="closeOptions()">Close</button>
+    </div>
+</div>
+<div id="advanced-options-modal" class="modal">
+    <div class="modal-content" style="max-width:520px; border-color:var(--gold);">
+        <h2 style="margin-top:0; color:var(--gold);">Advanced Options</h2>
+        <div class="option-row"><span class="option-label">Snake Head</span><input class="advanced-upload" type="file" accept="image/*" onchange="uploadCustomSkinPart('head', event)"></div>
+        <div class="option-row"><span class="option-label">Snake Body</span><input class="advanced-upload" type="file" accept="image/*" onchange="uploadCustomSkinPart('body', event)"></div>
+        <div class="option-row"><span class="option-label">Snake Tail</span><input class="advanced-upload" type="file" accept="image/*" onchange="uploadCustomSkinPart('tail', event)"></div>
+        <div class="option-row"><span class="option-label">Music</span><input class="advanced-upload" type="file" accept="audio/*" onchange="uploadCustomMusic(event)"></div>
+        <div class="option-row"><span class="option-label">Playfield BG</span><input class="advanced-upload" type="file" accept="image/png,image/*" onchange="uploadCustomBackground(event)"></div>
+        <div class="option-row">
+            <span class="option-label">Growth Style</span>
+            <button class="switch-btn" id="growth-tail-btn" onclick="setGrowthMode('tail')">Tail Growth</button>
+            <button class="switch-btn" id="growth-body-btn" onclick="setGrowthMode('body')">Body Growth</button>
+        </div>
+        <div class="option-row">
+            <button class="switch-btn" onclick="useUploadedSkin()">Use Uploaded Skin</button>
+            <button class="switch-btn" onclick="clearCustomMusic()">Reset Music</button>
+            <button class="switch-btn" onclick="clearCustomBackground()">Reset BG</button>
+        </div>
+        <button onclick="closeAdvancedOptions()">Close</button>
+    </div>
+</div>
+  </div>
+</div>
+<div id="modal-shield">
+    <div id="payment-modal">
+        <h3 style="color:var(--gold); margin:0;">Verify Card</h3>
+        <input type="text" id="card-num" placeholder="000 000 000" maxlength="9">
+        <button class="classic-btn" style="background:var(--xp); color:black; justify-content:center; font-weight:bold;" onclick="confirmPayment()">Verify & Purchase</button>
+        <button class="classic-btn" style="background:#444; border:none; justify-content:center;" onclick="closeModal()">Close</button>
+    </div>
+</div>
+<div id="ending-overlay" onclick="handleEndingAdvanceClick()">
+    <div id="ending-overlay-content">
+        <p id="ending-overlay-text"></p>
+        <p id="ending-overlay-prompt">Click to continue to credits</p>
+    </div>
+</div>
+
+<div id="game-layout">
+    <div class="sidebar">
+        <div id="soul-altar" style="display: none;">
+            <button class="panel accordion stat-val soul-purple-title" style="color:var(--soul); border-left:4px solid var(--soul); border-radius:12px 12px 0 0; margin-bottom:0;">Soul Altar</button>
+            <div class="panel-content" style="display:block; border-left:4px solid var(--soul); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
+            <span class="stat-val"><span id="shard-count" style="color:var(--soul)">0</span> Shards</span>
+            <button class="classic-btn" style="margin-top:10px; border-color:var(--soul);" onclick="prestige()">Rebirth (+10 Lvl) <span class="btn-price" style="color:var(--soul) !important">GO</span></button>
+            <button class="classic-btn" onclick="buySoulUpgrade('noWall')">No Wall Collision <span class="btn-price" style="color:var(--soul) !important">1 SHARD</span></button>
+            <button class="classic-btn" id="soul-insurance-btn" onclick="buySoulUpgrade('soulInsurance')">Soul Insurance <span class="btn-price" style="color:var(--soul)">2 SHARDS</span></button>
+            <span class="stat-label upgrade-desc" id="soul-insurance-desc">First death per run revives you at half length with a SOUL ANCHOR.</span>
+            <button class="panel accordion stat-val soul-purple-title" style="color:var(--soul); border-left:4px solid var(--soul); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Phase Path</button>
+            <div class="panel-content" style="border-left:4px solid var(--soul); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
+                <button class="classic-btn" id="phase-shift-btn" onclick="buySoulUpgrade('phase')">Phase Shift (Space) <span class="btn-price" style="color:var(--soul)">1 SHARD</span></button>
+                <span class="stat-label upgrade-desc">Press Space to phase through yourself for a short duration.</span>
+                <button class="classic-btn" id="dual-phase-btn" onclick="buySoulUpgrade('dualPhase')">Dual Phase <span class="btn-price" style="color:var(--soul)">2 SHARDS</span></button>
+                <span class="stat-label upgrade-desc">Adds a second phase charge each run.</span>
+                <button class="classic-btn" id="phase-greed-btn" onclick="buySoulUpgrade('phaseGreed')">Phase Greed <span class="btn-price" style="color:var(--soul)">3 SHARDS</span></button>
+                <span class="stat-label upgrade-desc">Collect apples while phasing for bonus gold.(CANT BE BOUGHT WITH PHASE EXPERTISE)</span>
+                <button class="classic-btn" id="phase-expertise-btn" onclick="buySoulUpgrade('phaseExpertise')">Phase Expertise <span class="btn-price" style="color:var(--soul)">3 SHARDS</span></button>
+                <span class="stat-label upgrade-desc">Collect apples while phasing for bonus XP.(CANT BE BOUGHT WITH PHASE GREED)</span>
+                <button class="classic-btn" id="phase-premonition-btn" onclick="buySoulUpgrade('phasePremonition')">Phase Premonition <span class="btn-price" style="color:var(--soul)">4 SHARDS</span></button>
+                <span class="stat-label upgrade-desc">Briefly reveals where the next apple will spawn during phase.</span>
+                <button class="classic-btn" id="phase-charge-btn" onclick="buySoulUpgrade('phaseCharge')">Phase Charge <span class="btn-price" style="color:var(--soul)">5 SHARDS</span></button>
+                <span class="stat-label upgrade-desc">Eat apples to shorten phase cooldown after use.</span>
+                <button class="classic-btn" id="temporal-phase-slow-btn" onclick="buySoulUpgrade('temporalPhaseSlow')">Temporal Phase Slow <span class="btn-price" style="color:var(--soul)">6 SHARDS</span></button>
+                <span class="stat-label upgrade-desc">Slows time during phase.</span>
+                <button class="classic-btn" id="immortal-phase-btn" onclick="buySoulUpgrade('immortalPhase')">Immortal Phase <span class="btn-price" style="color:var(--soul)">10 SHARDS</span></button>
+                <span class="stat-label upgrade-desc">Phase imidietly when danger.</span>
+            </div>
+            <button class="panel accordion stat-val soul-gold-title" style="color:var(--gold); border-left:4px solid var(--gold); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Apples</button>
+            <div class="panel-content" style="border-left:4px solid var(--gold); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
+                <button class="classic-btn" id="gold-apple-btn" onclick="buyAppleUpgrade()">Gold Apple <span class="btn-price">1 SHARD</span></button>
+                <div class="stat-label" id="gold-apple-desc" style="margin-bottom:8px; color:#ddd; text-transform:none;">Apples give +20% gold (max +100%) and +5% XP (max +20%)</div>
+                <button class="classic-btn" id="dual-apple-btn" onclick="buyDualAppleUpgrade()">Dual Apple <span class="btn-price">2 SHARD</span></button>
+                <div class="stat-label" id="dual-apple-desc" style="margin-bottom:8px; color:#ddd; text-transform:none;">11% chance two apples spawn (max 55%)</div>
+                <button class="classic-btn" id="echo-growth-btn" onclick="buyEchoGrowthUpgrade()">Echo Growth <span class="btn-price">3 SHARD</span></button>
+                <div class="stat-label" id="echo-growth-desc" style="color:#ddd; text-transform:none;">Every 5th apple grants bonus growth.</div>
+            </div>
+            <button class="panel accordion stat-val soul-purple-title" style="color:var(--soul); border-left:4px solid var(--soul); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Shedding (Amour)</button>
+            <div class="panel-content" style="border-left:4px solid var(--soul); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
+                <button class="classic-btn" id="shedding-btn" onclick="buySheddingUpgrade()">Shedding <span class="btn-price" style="color:var(--soul)">1 SHARD</span></button>
+                <div class="stat-label" id="shedding-desc" style="color:#ddd; text-transform:none;">Every 15 apples, shed 2 tail segments.</div>
+                <button class="classic-btn" id="cannibalism-btn" onclick="buyCannibalismUpgrade()">Cannibalism <span class="btn-price" style="color:var(--soul)">3 SHARDS</span></button>
+                <div class="stat-label" id="cannibalism-desc" style="color:#ddd; text-transform:none;">After molting, eat shed tail pieces for 2x apple rewards + current boosts.</div>
+                <button class="classic-btn" id="impact-shed-btn" onclick="buyImpactSheddingUpgrade()">Shed on Impact <span class="btn-price" style="color:var(--soul)">5 SHARDS</span></button>
+                <div class="stat-label" id="impact-shed-desc" style="color:#ddd; text-transform:none;">Wall collisions shed tail segments instead of killing you.</div>
+            </div>
+            </div>
+        </div>
+
+        <div class="panel" id="hero-panel">
+            <span class="stat-label">Hero Level</span>
+            <span class="stat-val" id="lvl-text" onclick="revealSoul()">LVL 1</span>
+            <div class="xp-bg"><div id="xp-fill"></div></div>
+            <div style="display:flex; justify-content:space-between; margin-top:6px; font-size:0.7em">
+                <div style="display:flex; align-items:center; gap:6px;">
+  <span id="xp-multi-disp" style="color:var(--xp)">1.0x XP</span>
+
+  <!-- ✅ New small yellow boost display -->
+  <span id="xp-boost-disp"
+        style="color:var(--gold); font-size:0.80em; opacity:0.95;">
+    +0.00 (B:0.00 / A:0.00)
+  </span>
+</div>
+                <span id="sp-disp" style="color:var(--xp)">0 SP</span>
+            </div>
+            <div id="phase-status" style="font-size:0.7em; color:var(--soul); margin-top:5px; display:none;">PHASE: READY</div>
+        </div>
+
+        <div id="permanent-skills-panel">
+            <button class="panel accordion stat-val" style="color:var(--xp); border-left:4px solid var(--xp); border-radius:12px 12px 0 0; margin-bottom:0;">Permanent Skills</button>
+            <div class="panel-content" style="display:block; border-left:4px solid var(--xp); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
+                <button class="classic-btn" onclick="upgrade('speed')">Speed <span class="btn-price" id="cost-speed">1 SP</span></button>
+                <button class="classic-btn" onclick="upgrade('size')">Size <span class="btn-price" id="cost-size">1 SP</span></button>
+                <button class="classic-btn" onclick="upgrade('evo')">Growth <span class="btn-price" id="cost-evo">1 SP</span></button>
+            </div>
+        </div>
+
+        <div id="cheat-area" style="display:none;">
+            <button class="classic-btn" style="background:#4ecca3; color:black; font-weight:bold; justify-content:center;" onclick="godMode()">CHEAT: MAX ALL</button>
+        </div>
+        
+        <button class="danger-btn" onclick="resetGame()">RESET (R)</button>
+        <button class="danger-btn title-return-btn" onclick="returnToTitle()">TITLE SCREEN (T)</button>
+    </div>
+
+    <div id="game-container">
+    <div id="pause-overlay">⏸ PAUSED</div>
+    <div id="soul-anchor-toast" class="soul-anchor-toast">SOUL ANCHOR USED</div>
+    <canvas id="game" width="400" height="400"></canvas>
+    
+    <!-- New Save Code Section -->
+    <div id="save-code-panel" style="margin-top:15px; background:#151515; padding:10px; border-radius:8px; border:1px solid #333;">
+        <span class="stat-label">Save Code (Export/Import)</span>
+        <textarea id="save-code-box" style="width:100%; background:#000; color:var(--xp); border:1px solid #222; font-family:monospace; font-size:10px; margin-top:5px; resize:none; padding:5px;" rows="3" placeholder="Paste save code here..."></textarea>
+        <div style="display:flex; gap:5px; margin-top:5px;">
+            <button class="classic-btn" style="padding:5px; flex:1; justify-content:center;" onclick="exportSave()">Export Code</button>
+            <button class="classic-btn" style="padding:5px; flex:1; justify-content:center;" onclick="importSave()">Import Code</button>
+        </div>
+    </div>
+</div>
+
+    <div class="sidebar">
+        <div id="shop-tabs" style="display:flex; gap:5px; margin-bottom:8px;">
+            <button class="tab-btn active" onclick="switchShopTab('main')">MAIN SHOP</button>
+            <button id="black-market-tab-btn" class="tab-btn black-market locked" onclick="switchShopTab('black')">BLACK MARKET</button>
+        </div>
+        <div id="main-shop-panel">
+        <button class="panel accordion stat-val" style="color:var(--gold); border-left:4px solid var(--gold); border-radius:12px 12px 0 0; margin-bottom:0;">Bank</button>
+        <div class="panel-content" style="border-left:4px solid var(--gold); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
+            <button class="classic-btn" onclick="openLootBox()">
+    Open Loot Box <span class="btn-price">2500 G</span>
+</button>
+            <span class="stat-val" style="color:var(--gold)"><span id="gem-count">0</span> G</span>
+            <div class="bank-grid">
+                <button class="bank-btn" onclick="initiateBuy(5000)">5k G<br><span class="btn-price">$2.99</span></button>
+                <button class="bank-btn" onclick="initiateBuy(25000)">25k G<br><span class="btn-price">$9.99</span></button>
+                <button class="bank-btn" onclick="initiateBuy(60000)">60k G<br><span class="btn-price">$19.99</span></button>
+                <button class="bank-btn" onclick="initiateBuy(200000)">200k G<br><span class="btn-price">$49.99</span></button>
+            </div>
+        </div>
+
+        <button class="panel accordion stat-val" style="color:#ff9966; border-left:4px solid #ff4500; border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Buff Shop</button>
+        <div class="panel-content" style="border-left:4px solid #ff4500; border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
+            <span class="stat-label">Buffs (Session Only)</span>
+            <button class="classic-btn" onclick="buyBuff('speed')">Boost Speed <span class="btn-price">500G</span></button>
+            <button class="classic-btn" onclick="buyBuff('size')">Boost Size <span class="btn-price">1000G</span></button>
+            <button class="classic-btn" onclick="buyBuff('evo')">Boost Evo  <span class="btn-price">1500G</span></button>
+            <button class="classic-btn" onclick="buyXPBoost()">5x XP Boost <span class="btn-price">5000G</span></button>
+        </div>
+
+        <button class="panel accordion stat-val" style="color:var(--pink); border-left:4px solid var(--pink); border-radius:12px 12px 0 0; margin-bottom:0; margin-top:8px;">Skin Shop</button>
+        <div class="panel-content" style="border-left:4px solid var(--pink); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
+            <div class="color-grid-scroll">
+                <div class="color-opt skin-opt" data-hex="#00fbff" data-label="FREE" style="background:#00fbff" onclick="buySkin('#00fbff',0)">FREE</div>
+                <div class="color-opt skin-opt" data-hex="#ff00ff" data-label="2k" style="background:#ff00ff" onclick="buySkin('#ff00ff',2000)">2k</div>
+                <div class="color-opt skin-opt" data-hex="#ffd700" data-label="10k" style="background:#ffd700" onclick="buySkin('#ffd700',10000)">10k</div>
+                <div class="color-opt skin-opt" data-hex="#ff0000" data-label="50k" style="background:#ff0000" onclick="buySkin('#ff0000',50000)">50k</div>
+                <div class="color-opt skin-opt" data-hex="#adff2f" data-label="75k" style="background:#adff2f" onclick="buySkin('#adff2f',75000)">75k</div>
+                <div class="color-opt skin-opt" data-hex="#ffffff" data-label="100k" style="background:#ffffff" onclick="buySkin('#ffffff',100000)">100k</div>
+                <div class="color-opt skin-opt" data-hex="#9370db" data-label="150k" style="background:#9370db" onclick="buySkin('#9370db',150000)">150k</div>
+                <div class="color-opt skin-opt" data-hex="#1e90ff" data-label="200k" style="background:#1e90ff" onclick="buySkin('#1e90ff',200000)">200k</div>
+                
+                <div class="color-opt skin-opt" data-hex="#013220" data-label="FREE" data-requires="cheat" style="background:#013220" onclick="buySkin('#013220',0)">FREE</div>
+                <div class="color-opt skin-opt" data-hex="#ff4500" data-label="FREE" data-requires="hellEnding" style="background:#ff4500" onclick="buySkin('#ff4500',0)">FREE</div>
+                <div class="color-opt skin-opt" data-hex="#a020f0" data-label="FREE" data-requires="rebirth" style="background:#a020f0" onclick="buySkin('#a020f0',0)">FREE</div>
+                <div class="color-opt skin-opt" data-hex="#2596be" data-label="FREE" data-requires="averageEnding" style="background:#2596be" onclick="buySkin('#2596be',0)">FREE</div>
+                <div class="color-opt skin-opt" data-hex="#211022" data-label="FREE" data-requires="averageEnding" style="background:#211022" onclick="buySkin('#211022',0)">FREE</div>
+                <div class="color-opt skin-opt" data-skin-id="triple-image" data-label="30k" style="background:linear-gradient(135deg,#6ec5ff,#b8ffda)" onclick="buySkin('triple-image',30000)">30k</div>
+           </div>
+        </div>
+    </div>
+
+<div id="black-market-panel" style="display: none;">
+    <div class="panel" style="border-left-color: #00ffff;">
+        <span class="stat-label">Diamonds (Premium)</span>
+        <span class="stat-val" id="diamond-count">0 D</span>
+        <div class="bank-grid">
+            <button class="bank-btn" onclick="buyDiamondPack(5)">5 D<br><span class="btn-price">$2.99</span></button>
+            <button class="bank-btn" onclick="buyDiamondPack(15)">15 D<br><span class="btn-price">$7.99</span></button>
+            <button class="bank-btn" onclick="buyDiamondPack(35)">35 D<br><span class="btn-price">$19.99</span></button>
+            <button class="bank-btn" onclick="buyDiamondPack(75)">75 D<br><span class="btn-price">$39.99</span></button>
+        </div>
+    </div>
+<button class="panel accordion stat-val" style="color:var(--soul); border-left:4px solid var(--soul); border-radius:12px 12px 0 0; margin-bottom:0;">Shard Bundles</button>
+  <div class="panel-content" style="border-left:4px solid var(--soul); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
+    
+    <button class="classic-btn" onclick="buyShardWithDiamonds(1)">1 Shards<br><span class="btn-price">5 D</span></button>
+    <button class="classic-btn" onclick="buyShardWithDiamonds(3)">3 Shards<br><span class="btn-price">12 D</span></button>
+    <button class="classic-btn" onclick="buyShardWithDiamonds(10)">10 Shards<br><span class="btn-price">35 D</span></button>
+    <button class="classic-btn" onclick="buyShardWithDiamonds(15)">15 Shards<br><span class="btn-price">50 D</span></button>
+  </div>
+
+  <!-- Collapsible SP Bundles -->
+  <button class="panel accordion stat-val" style="color:var(--xp); border-left:4px solid var(--xp); border-radius:12px 12px 0 0; margin-bottom:0;">SP Bundles</button>
+
+<div class="panel-content"
+  style="border-left:4px solid var(--xp); border-radius:0 0 12px 12px; padding:10px; margin-top:0;">
+  <span class="stat-label">Snake Points (Buy With Diamonds)</span>
+
+  <button class="classic-btn" onclick="buySPWithDiamonds(5)">+5 SP<br><span class="btn-price">5 D</span></button>
+  <button class="classic-btn" onclick="buySPWithDiamonds(15)">+15 SP<br><span class="btn-price">12 D</span></button>
+  <button class="classic-btn" onclick="buySPWithDiamonds(40)">+40 SP<br><span class="btn-price">30 D</span></button>
+  <button class="classic-btn" onclick="buySPWithDiamonds(100)">+100 SP<br><span class="btn-price">65 D</span></button>
+</div>
+
+<div class="panel" style="border-left-color: var(--gold);">
+    <span class="stat-label">Instant 10 Levels</span>
+        <button class="classic-btn" onclick="buyLevelBoost()">+10 Levels<br><span class="btn-price">50 D</span></button>
+</div>
+<div class="panel" style="border-left-color: var(--xp);">
+    <span class="stat-label">Guaranteed Rarity Box</span>
+    <span class="stat-val" style="color:var(--xp)">Rigged Boxes!</span>
+
+    <div class="bank-grid">
+        <button class="bank-btn" onclick="openGuaranteedLootBox('RARE')">RARE Box<br><span class="btn-price">30 D</span></button>
+        <button class="bank-btn" onclick="openGuaranteedLootBox('EPIC')">EPIC Box<br><span class="btn-price">60 D</span></button>
+        <button class="bank-btn" onclick="openGuaranteedLootBox('ULTRA')">ULTRA Box<br><span class="btn-price">100 D</span></button>
+        <button class="bank-btn" onclick="openGuaranteedLootBox('LEGENDARY')">LEGENDARY Box<br><span class="btn-price">200 D</span></button>
+    </div>
+</div>
+</div>
+</div>
+</div>
+
+<div id="credits-modal" class="modal">
+    <div class="modal-content" style="max-width:420px; border-color:var(--premium);">
+        <h2 style="margin-top:0; color:var(--premium);">Credits</h2>
+        <p id="credits-ending-text" style="color:#9feaff; font-size:0.85em;"></p>
+        <div id="credits-scroll" class="credits-scroll">
+            <div id="credits-roll" class="credits-roll">
+                <!-- EXECUTIVE & PRODUCTION -->
+<div class="credits-section-title">EXECUTIVE &amp; PRODUCTION</div>
+<div><strong>Game Director:</strong> Max Deonarine</div>
+<div><strong>Executive Producer:</strong> Max Deonarine</div>
+<div><strong>Line Producer:</strong> Max Deonarine</div>
+<div><strong>Project Manager:</strong> Max Deonarine</div>
+<div><strong>Associate Producer:</strong> Max Deonarine</div>
+<div><strong>Development Manager:</strong> Max Deonarine</div>
+<div><strong>Milestone Coordinator:</strong> Max Deonarine</div>
+
+<!-- DESIGN -->
+<div class="credits-section-title">DESIGN</div>
+<div><strong>Design Lead:</strong> Max Deonarine</div>
+<div><strong>Game Designer:</strong> Max Deonarine</div>
+<div><strong>Systems Designer:</strong> Max Deonarine</div>
+<div><strong>Economy Designer:</strong> Max Deonarine</div>
+<div><strong>UI / UX Designer:</strong> Max Deonarine</div>
+<div><strong>Level Designer:</strong> Max Deonarine</div>
+<div><strong>Monetization Designer:</strong> Max Deonarine</div>
+<div><strong>Balance Designer:</strong> Max Deonarine</div>
+<div><strong>Narrative Designer:</strong> Max Deonarine</div>
+<div><strong>Technical Designer:</strong> Max Deonarine</div>
+
+<!-- ENGINEERING -->
+<div class="credits-section-title">ENGINEERING</div>
+<div><strong>Engineering Lead:</strong> Max Deonarine</div>
+<div><strong>Programmer:</strong> Max Deonarine</div>
+<div><strong>Gameplay Programmer:</strong> Max Deonarine</div>
+<div><strong>UI Programmer:</strong> Max Deonarine</div>
+<div><strong>Audio Programmer:</strong> Max Deonarine</div>
+<div><strong>Physics/Collision Programmer:</strong> Max Deonarine</div>
+<div><strong>Tools Programmer:</strong> Max Deonarine</div>
+<div><strong>Build Engineer:</strong> Max Deonarine</div>
+<div><strong>Database Engineer:</strong> Max Deonarine</div>
+<div><strong>Performance Engineer:</strong> Max Deonarine</div>
+
+<!-- add centered title ART & AUDIO -->
+<div class="credits-section-title">ART</div>
+<div><strong>Art Director:</strong> Max Deonarine</div>
+<div><strong>Concept Artist:</strong> Max Deonarine</div>
+<div><strong>2D Sprite Artist:</strong> Max Deonarine</div>
+<div><strong>VFX Artist:</strong> Max Deonarine</div>
+<div><strong>Animator:</strong> Max Deonarine</div>
+<div class="credits-section-title">PLAY TESTING</div>
+<div>Lead Play Tester: Joshua John</div>
+<div>Play Tester: Melody Garcia</div>
+<div>Play Tester: Soryen Spellman </div> 
+<div>Play Tester: Naresh Sankanaporn</div>
+<div>Play Tester: Ethan Curtis</div>
+<div>Play Tester: Charli Lucio</div>
+<div>Play Tester: Elijah Siggers</div>
+<div>Compliance Tester: Joshua John</div>
+<div>Localization Tester: Joshua John</div>
+<div>Accessibility Tester: Joshua John</div>
+<div>Live Ops Tester: Joshua John</div>
+            </div>
+        </div>
+        <button onclick="closeCredits()">Close</button>
+        <button style="margin-left:8px;"><a href = "https://codehs.com/sandbox/deonarinemgolisdnet/new-sandbox-program-64/run">Play A New?</a></button>
+    </div>
+</div>
+
+<script>
+    const DEATH_LORE = [ "I recognize you but im not afraid, not anymore", "wheres my dog? you said my dog would be back here!", "Hey dad... can you not bring her to the party again? ", "line 4 here"];
+    const REBIRTH_SPEECH = ["speech 1", "speech 2", "speech 3"];
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+    const grid = 20;
+    const defaultMusic = new Audio("https://codehs.com/uploads/0d78da48c3e737d0555b5a3767a52f83");
+    defaultMusic.loop = true;
+    defaultMusic.volume = 0.45;
+    const endingMusic = new Audio("https://codehs.com/uploads/7288ab503976716568ef8abd3ee39c3b");
+    endingMusic.loop = false;
+    endingMusic.volume = 0.7;
+    const creditsMusic = new Audio("https://codehs.com/uploads/01680af39ae7d5cc89f66ed51211f0f7");
+    creditsMusic.loop = false;
+    creditsMusic.volume = 0.75;
+    let endingTriggered = false;
+    let endingActive = false;
+    let endingAwaitingClick = false;
+    let queuedEndingText = "Thanks for playing Snake 2.";
+    const IMAGE_SKIN_ID = 'triple-image';
+    const snakeImageSkinAssets = {
+        head: new Image(),
+        body: new Image(),
+        tail: new Image()
+    };
+    const playfieldBackgroundImage = new Image();
+    snakeImageSkinAssets.head.src = 'https://codehs.com/uploads/7ede088a2b8e13004598196b57c8ea42';
+    snakeImageSkinAssets.body.src = 'https://codehs.com/uploads/39c867b57d8cf23c0094d7fb3de37db7';
+    snakeImageSkinAssets.tail.src = 'https://codehs.com/uploads/7db8b7ebaf3e37439adf04a3145b0de1';
+
+    function playDefaultMusic() {
+        if (!data.musicEnabled) return;
+        if (endingTriggered) return;
+        if (!endingMusic.paused) endingMusic.pause();
+        defaultMusic.play().catch(() => {});
+    }
+
+    function playEndingMusic() {
+        if (!data.musicEnabled) return;
+        if (endingTriggered) return;
+        endingTriggered = true;
+        defaultMusic.pause();
+        endingMusic.currentTime = 0;
+        endingMusic.play().catch(() => {});
+    }
+
+    function beginEndingSequence(endingText) {
+        clearTimeout(phaseTimeout);
+        clearTimeout(phaseCooldownTimer);
+        isPaused = true;
+        modalActive = true;
+        playEndingMusic();
+        queueEndingCredits(endingText);
+    }
+
+    function drawCheaterEndingFrame() {
+        drawPlayfieldBackground();
+        const primaryAppleColor = getGoldAppleRenderColor(0);
+        ctx.fillStyle = primaryAppleColor;
+        if (data.neonEnabled) {
+            ctx.shadowColor = primaryAppleColor;
+            ctx.shadowBlur = 10;
+        } else {
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+        }
+        if (food) ctx.fillRect(food.x * grid + 2, food.y * grid + 2, grid - 4, grid - 4);
+        if (bonusFood) {
+            const bonusAppleColor = getGoldAppleRenderColor(1);
+            ctx.fillStyle = bonusAppleColor;
+            if (data.neonEnabled) ctx.shadowColor = bonusAppleColor;
+            ctx.fillRect(bonusFood.x * grid + 2, bonusFood.y * grid + 2, grid - 4, grid - 4);
+        }
+        ctx.shadowBlur = 0;
+        ctx.shadowColor = 'transparent';
+        snake.forEach((s, i) => {
+            drawPatternedSnakeSegment(s, i === 0);
+        });
+    }
+
+    function runCheaterSelfEatSequence() {
+        clearTimeout(phaseTimeout);
+        clearTimeout(phaseCooldownTimer);
+        isPaused = true;
+        modalActive = true;
+        playEndingMusic();
+
+        const bite = () => {
+            if (snake.length <= 1) {
+                data.cheaterEndingUnlocked = true;
+                save();
+                beginEndingSequence("CHEATER CHEATER PUMKIN EATER!");
+                return;
+            }
+
+            const nextSegment = snake[1];
+            snake = [{ x: nextSegment.x, y: nextSegment.y }, ...snake.slice(2)];
+            drawCheaterEndingFrame();
+            setTimeout(bite, 70);
+        };
+
+        drawCheaterEndingFrame();
+        setTimeout(bite, 180);
+    }
+
+    function queueEndingCredits(endingText) {
+        queuedEndingText = endingText;
+        endingAwaitingClick = true;
+        const endingOverlay = document.getElementById('ending-overlay');
+        const endingOverlayText = document.getElementById('ending-overlay-text');
+        if (endingOverlay && endingOverlayText) {
+            endingOverlayText.textContent = endingText;
+            endingOverlay.style.display = 'flex';
+        }
+    }
+
+    function handleEndingAdvanceClick() {
+    if (!endingAwaitingClick) return;
+    endingAwaitingClick = false;
+
+    const endingOverlay = document.getElementById('ending-overlay');
+    if (endingOverlay) endingOverlay.style.display = 'none';
+
+    // Force the ending display to appear immediately after the ending overlay closes,
+    // and start the ending/credits music from this same user interaction.
+    requestAnimationFrame(() => {
+        startCredits(queuedEndingText);
+    });
+}
+
+
+    const defaultSaveData = {
+        gems: 0, lvl: 1, exp: 0, nxt: 100, sp: 0, spd: 140, startSz: 3, evo: 1, xpM: 1.0,
+        cSpd: 1, cSz: 1, cEvo: 1, cardLinked: false, skin: '#00fbff', owned: ['#00fbff'],
+        appleSkin: '#ff2e63', ownedAppleSkins: ['#ff2e63'],
+        shards: 0, noWall: false, hasPhase: false, phasePower: 0, lastPrestige: 0,
+        soulRevealed: false, titleSeen: false, diamonds: 0, diedLastRun: false,
+        goldAppleLevel: 0, dualAppleLevel: 0, echoGrowthLevel: 0, sheddingLevel: 0, cannibalism: false,
+        shedOnImpact: false,
+        dualPhase: false, phaseGreed: false, phaseExpertise: false, phasePremonition: false, phaseCharge: false, temporalPhaseSlow: false, immortalPhase: false,
+        soulInsurance: false, fracturedSoul: false,
+        endingHellUnlocked: false, endingAverageUnlocked: false,
+        musicEnabled: true, neonEnabled: true,
+        controlPreset: 'arrows',
+        customControls: { left: 'j', up: 'i', right: 'l', down: 'k' },
+        phaseKey: 'space',
+        customSkinHead: '',
+        customSkinBody: '',
+        customSkinTail: '',
+        customMusic: '',
+        customGameBackground: '',
+        growthMode: 'tail',
+        language: 'en',
+        rebirthCount: 0,
+        cheaterEndingUnlocked: false,
+        firstAppleEaten: false,
+        firstPurchase: false,
+        firstPurchaseWithCard: false,
+        blackMarketUnlocked: false,
+        cheatingUnlocked: false,
+        legendaryLootUnlocked: false
+    };
+    let data = Object.assign({}, defaultSaveData, JSON.parse(localStorage.getItem('Snake_2026_SoulReveal')) || {});
+    if (!Array.isArray(data.owned)) data.owned = ['#00fbff'];
+    if (!data.owned.includes('#00fbff')) data.owned.push('#00fbff');
+    if (!Array.isArray(data.ownedAppleSkins)) data.ownedAppleSkins = ['#ff2e63'];
+    if (!data.ownedAppleSkins.includes('#ff2e63')) data.ownedAppleSkins.push('#ff2e63');
+    if (!data.customControls || typeof data.customControls !== 'object') {
+        data.customControls = { left: 'j', up: 'i', right: 'l', down: 'k' };
+    }
+    if (!data.controlPreset) data.controlPreset = 'arrows';
+    if (typeof data.musicEnabled !== 'boolean') data.musicEnabled = true;
+    if (typeof data.neonEnabled !== 'boolean') data.neonEnabled = true;
+    if (!data.phaseKey) data.phaseKey = 'space';
+    if (!data.language) data.language = 'en';
+    if (typeof data.rebirthCount !== 'number') data.rebirthCount = 0;
+    if (typeof data.cheaterEndingUnlocked !== 'boolean') data.cheaterEndingUnlocked = false;
+    if (typeof data.firstAppleEaten !== 'boolean') data.firstAppleEaten = false;
+    if (typeof data.firstPurchase !== 'boolean') data.firstPurchase = false;
+    if (typeof data.firstPurchaseWithCard !== 'boolean') data.firstPurchaseWithCard = false;
+    if (typeof data.blackMarketUnlocked !== 'boolean') data.blackMarketUnlocked = !!data.cardLinked;
+    if (typeof data.cheatingUnlocked !== 'boolean') data.cheatingUnlocked = !!data.cheatActive;
+    if (typeof data.legendaryLootUnlocked !== 'boolean') data.legendaryLootUnlocked = false;
+    if (data.growthMode !== 'tail' && data.growthMode !== 'body') data.growthMode = 'tail';
+
+    if (data.customSkinHead) snakeImageSkinAssets.head.src = data.customSkinHead;
+    if (data.customSkinBody) snakeImageSkinAssets.body.src = data.customSkinBody;
+    if (data.customSkinTail) snakeImageSkinAssets.tail.src = data.customSkinTail;
+    if (data.customMusic) defaultMusic.src = data.customMusic;
+    if (data.customGameBackground) playfieldBackgroundImage.src = data.customGameBackground;
+
+    function normalizeControlValue(value) {
+        return String(value || '').trim().toLowerCase().replace(/\s+/g, ' ').slice(0, 12);
+    }
+
+    function normalizePhaseKey(value) {
+        const cleaned = String(value || '').trim().toLowerCase();
+        if (!cleaned || cleaned === ' ') return 'space';
+        if (cleaned === 'spacebar') return 'space';
+        return cleaned.slice(0, 12);
+    }
+
+    function isPhaseTriggerKey(event) {
+        const desired = normalizePhaseKey(data.phaseKey);
+        const key = normalizePhaseKey(event.key);
+        const code = normalizePhaseKey(event.code);
+        return desired === key || desired === code;
+    }
+
+    function getActiveControls() {
+        const presets = {
+            arrows: { left: 'arrowleft', up: 'arrowup', right: 'arrowright', down: 'arrowdown' },
+            wasd: { left: 'a', up: 'w', right: 'd', down: 's' },
+            uhjk: { left: 'h', up: 'u', right: 'k', down: 'j' }
+        };
+        if (data.controlPreset === 'custom') {
+            return {
+                left: normalizeControlValue(data.customControls.left),
+                up: normalizeControlValue(data.customControls.up),
+                right: normalizeControlValue(data.customControls.right),
+                down: normalizeControlValue(data.customControls.down)
+            };
+        }
+        return presets[data.controlPreset] || presets.arrows;
+    }
+    applyNeonPreference();
+    applyGameBackground();
+
+    function save() { localStorage.setItem('Snake_2026_SoulReveal', JSON.stringify(data)); }
+    window.startGame = function () {
+  titleActive = false;
+  isPaused = false;
+  playDefaultMusic();
+
+  // mark title seen
+  data.titleSeen = true;
+  save();
+
+  const ts = document.getElementById("title-screen");
+  if (ts) ts.remove();
+};
+    function markTitleSeen() {
+        data.titleSeen = true;
+        save();
+    }
+    function updatePhaseUI() {
+    const status = document.getElementById('phase-status');
+
+    // Show status panel if phase is unlocked
+    if (data.hasPhase) {
+        status.style.display = 'block';
+
+        // Only set READY text if not currently overridden
+        if (!isPhasing && !phaseCD) {
+            status.innerText = `PHASE: READY x${phaseCharges} (${1.5 + data.phasePower}s)`;
+            status.style.color = 'var(--soul)';
+        } else if (phaseCD) {
+            const remain = Math.max(0, Math.ceil((phaseCooldownEndAt - Date.now()) / 1000));
+            status.innerText = `PHASE: COOLDOWN ${remain}s`;
+            status.style.color = 'red';
+        }
+    }
+
+    // Update Phase button text
+    const phaseBtn = document.getElementById('phase-shift-btn');
+
+    if (!phaseBtn) return;
+
+    const cost = 1 + data.phasePower;
+    const phaseKeyLabel = normalizePhaseKey(data.phaseKey).toUpperCase();
+
+    if (!data.hasPhase) {
+        phaseBtn.innerHTML =
+            `Phase Shift (${phaseKeyLabel}) 
+             <span class="btn-price" style="color:var(--soul)">
+                ${cost} ${cost === 1 ? 'SHARD' : 'SHARDS'}
+             </span>`;
+    } else {
+        phaseBtn.innerHTML =
+            `Phase Shift +${data.phasePower + 1}s 
+             <span class="btn-price" style="color:var(--soul)">
+                ${cost} ${cost === 1 ? 'SHARD' : 'SHARDS'}
+             </span>`;
+    }
+}
+    
+    
+    let snake = [], dx = 1, dy = 0, food = {x: 15, y: 15}, isPaused = true, modalActive = false;
+    let runXPBoostBought = 0;
+    let runXPBoostApple = 0;
+    let tSpd = 0, tSz = 0, growCount = 0, buyAmt = 0, purchaseType = "gold", buffer = [], particles = [], tEvo = 0;
+    let isPhasing = false, phaseCD = false;
+    let phaseCharges = 1;
+    let phaseCooldownEndAt = 0;
+    let phaseTimeout = null;
+    let phaseCooldownTimer = null;
+    let appleMoveTick = 0;
+    let bonusFood = null;
+    let nextAppleLocation = null;
+    let phasePreviewUntil = 0;
+    let applesEatenThisRun = 0;
+    let shedTailPieces = [];
+    let soulAnchorUsedThisRun = false;
+    let soulAnchorPauseUntil = 0;
+    let soulHusk = null;
+    // Easy speed knob (bigger = slower movement)
+    let APPLE_MOVE_BASE = -7;
+    let APPLE_SCALE = 0.35;
+    let cheatActive = false; // New state variable for cheat mode color
+    let inputQueue = [];
+    const INPUT_QUEUE_MAX = 3;
+
+    function isOppositeDirection(a, b) {
+      return a.x === -b.x && a.y === -b.y;
+    }
+
+    function queueDirection(nextDirection) {
+      if (!nextDirection) return;
+      const tailDirection = inputQueue.length > 0 ? inputQueue[inputQueue.length - 1] : { x: dx, y: dy };
+      if (isOppositeDirection(nextDirection, tailDirection)) return;
+      if (nextDirection.x === tailDirection.x && nextDirection.y === tailDirection.y) return;
+      if (inputQueue.length >= INPUT_QUEUE_MAX) return;
+      inputQueue.push(nextDirection);
+    }
+
+    function applyQueuedDirection() {
+      if (inputQueue.length === 0) return;
+      const nextDirection = inputQueue.shift();
+      if (!isOppositeDirection(nextDirection, { x: dx, y: dy })) {
+        dx = nextDirection.x;
+        dy = nextDirection.y;
+      }
+    }
+
+    function isSelfCollisionFast(head) {
+      for (let i = 0; i < snake.length; i++) {
+        if (snake[i].x === head.x && snake[i].y === head.y) return true;
+      }
+      return false;
+    }
+
+    function getGoldAppleGoldMultiplier() {
+  return 1 + Math.min(5, data.goldAppleLevel || 0) * 0.20;
+}
+
+function getGoldAppleXPMultiplier() {
+  return 1 + Math.min(4, data.goldAppleLevel || 0) * 0.05;
+}
+
+function getEchoGrowthBonus() {
+  if ((data.echoGrowthLevel || 0) <= 0) return 0;
+  return 2 * data.echoGrowthLevel;
+}
+
+function getDualAppleChance() {
+  return Math.min(55, (data.dualAppleLevel || 0) * 11);
+}
+
+function getGoldAppleCost() {
+  return 1 + (data.goldAppleLevel || 0);
+}
+
+function buyAppleUpgrade() {
+  const maxGoldLevel = 5;
+  if ((data.goldAppleLevel || 0) >= maxGoldLevel) return alert('Gold Apple is already maxed out');
+
+  const cost = getGoldAppleCost();
+  if (data.shards < cost) return alert('Not enough shards (' + cost + ' needed)');
+
+  data.shards -= cost;
+  data.goldAppleLevel = (data.goldAppleLevel || 0) + 1;
+
+  registerPurchase();
+  save();
+  updateUI();
+}
+
+function buyDualAppleUpgrade() {
+  const maxDualLevel = 5;
+  if ((data.goldAppleLevel || 0) <= 0) return alert('Gold Apple required');
+  if ((data.dualAppleLevel || 0) >= maxDualLevel) return alert('Dual Apple is already maxed out');
+
+  const cost = 2;
+  if (data.shards < cost) return alert('Not enough shards (' + cost + ' needed)');
+
+  data.shards -= cost;
+  data.dualAppleLevel = (data.dualAppleLevel || 0) + 1;
+
+  registerPurchase();
+  save();
+  updateUI();
+}
+
+function buyEchoGrowthUpgrade() {
+  const maxEchoLevel = 5;
+  if ((data.dualAppleLevel || 0) <= 0) return alert('Dual Apple required');
+  if ((data.echoGrowthLevel || 0) >= maxEchoLevel) return alert('Echo Growth is already maxed out');
+
+  const cost = 3;
+  if (data.shards < cost) return alert('Not enough shards (' + cost + ' needed)');
+
+  data.shards -= cost;
+  data.echoGrowthLevel = (data.echoGrowthLevel || 0) + 1;
+
+  registerPurchase();
+  save();
+  updateUI();
+}
+
+function getSheddingProfile() {
+  const level = Math.max(0, Math.min(5, data.sheddingLevel || 0));
+  const profiles = [
+    { apples: 15, tails: 2 },
+    { apples: 14, tails: 3 },
+    { apples: 13, tails: 4 },
+    { apples: 12, tails: 4 },
+    { apples: 10, tails: 5 }
+  ];
+  return profiles[Math.max(0, level - 1)] || profiles[0];
+}
+
+function buySheddingUpgrade() {
+  const maxSheddingLevel = 5;
+  if ((data.sheddingLevel || 0) >= maxSheddingLevel) return alert('Shedding is already maxed out');
+
+  const cost = 1;
+  if (data.shards < cost) return alert('Not enough shards (' + cost + ' needed)');
+
+  data.shards -= cost;
+  data.sheddingLevel = (data.sheddingLevel || 0) + 1;
+
+  registerPurchase();
+  save();
+  updateUI();
+}
+
+function buyCannibalismUpgrade() {
+  if ((data.sheddingLevel || 0) <= 0) return alert('Shedding required');
+  if (data.cannibalism) return alert('Cannibalism already unlocked');
+
+  const cost = 3;
+  if (data.shards < cost) return alert('Not enough shards (' + cost + ' needed)');
+
+  data.shards -= cost;
+  data.cannibalism = true;
+
+  registerPurchase();
+  save();
+  updateUI();
+}
+
+function shedTailSegments(amount) {
+  let shedRemaining = amount;
+  if (growCount > 0) {
+    const reducedGrowth = Math.min(growCount, shedRemaining);
+    growCount -= reducedGrowth;
+    shedRemaining -= reducedGrowth;
+  }
+  while (shedRemaining > 0 && snake.length > 2) {
+    const shedSeg = snake.pop();
+    if (data.cannibalism && shedSeg) shedTailPieces.push({ x: shedSeg.x, y: shedSeg.y });
+    shedRemaining--;
+  }
+  return shedRemaining < amount;
+}
+
+function buyImpactSheddingUpgrade() {
+  if (data.shedOnImpact) return alert('Shed on Impact already unlocked');
+
+  const cost = 5;
+  if (data.shards < cost) return alert('Not enough shards (' + cost + ' needed)');
+
+  data.shards -= cost;
+  data.shedOnImpact = true;
+
+  registerPurchase();
+  save();
+  updateUI();
+}
+
+function applyAppleRewards(multiplier = 1, countAsApple = true) {
+    if (countAsApple) applesEatenThisRun += multiplier;
+    runXPBoostApple += 0.05 * multiplier;
+
+    const totalXP = getTotalXPMultiplier();
+    const goldAppleGoldBonus = getGoldAppleGoldMultiplier();
+    const goldAppleXPBonus = getGoldAppleXPMultiplier();
+    const phaseXPScale = isPhasing && data.phaseGreed ? 0 : (isPhasing && data.phaseExpertise ? 1.75 : 1);
+    const phaseGoldScale = isPhasing && data.phaseExpertise ? 0 : (isPhasing && data.phaseGreed ? 1.75 : 1);
+
+    data.exp += 25 * multiplier * totalXP * goldAppleXPBonus * phaseXPScale;
+    data.gems += Math.ceil(5 * multiplier * goldAppleGoldBonus * phaseGoldScale);
+    growCount += (data.evo + tEvo - 1) * multiplier;
+
+    if ((data.echoGrowthLevel || 0) > 0 && countAsApple) {
+        const triggers = Math.floor(applesEatenThisRun / 5) - Math.floor((applesEatenThisRun - multiplier) / 5);
+        if (triggers > 0) growCount += getEchoGrowthBonus() * triggers;
+    }
+}
+
+    function getXPBreakdown() {
+  const growthLevel = data.evo + tEvo;
+  const growthXP = 1 + (growthLevel - 1) * 0.15;
+
+  const len = snake.length || (data.startSz + tSz);
+  const lengthXP = 1 + Math.floor(len / 10) * 0.10;
+
+  const runBoost = 1.0 + runXPBoostBought + runXPBoostApple;
+
+  const total = data.xpM * runBoost * growthXP * lengthXP;
+
+  return {
+    total,
+    runBoost,
+    bought: runXPBoostBought,
+    apple: runXPBoostApple,
+    growthXP,
+    lengthXP
+  };
+}
+
+    function updateUI() {
+        const lvlEl = document.getElementById('lvl-text');
+        lvlEl.innerText = "LVL " + data.lvl;
+        if (data.lvl >= 10 && !data.soulRevealed) lvlEl.classList.add('lvl-ready');
+        else { lvlEl.classList.remove('lvl-ready'); if (data.soulRevealed) lvlEl.style.color = "var(--soul)"; }
+        const altar = document.getElementById('soul-altar');
+if (data.soulRevealed) {
+    altar.style.display = 'block';
+    altar.style.pointerEvents = 'auto';
+}
+        
+        document.getElementById('xp-fill').style.width = (data.exp / data.nxt * 100) + "%";
+        const totalXP = getTotalXPMultiplier();
+        const xp = getXPBreakdown();
+
+// Main XP display = TOTAL multiplier
+document.getElementById('xp-multi-disp').innerText =
+  xp.total.toFixed(2) + "x XP";
+
+// Yellow small display = breakdown (NO base xpM included)
+const boostEl = document.getElementById("xp-boost-disp");
+if (boostEl) {
+  boostEl.innerText =
+    `+${xp.bought.toFixed(2)} A:+${xp.apple.toFixed(2)} G:${xp.growthXP.toFixed(2)}x L:${xp.lengthXP.toFixed(2)}x`;
+}
+        document.getElementById('sp-disp').innerText = data.sp + " SP";
+        document.getElementById('gem-count').innerText = data.gems.toLocaleString();
+        const dEl = document.getElementById("diamond-count");
+        if (dEl) dEl.innerText = data.diamonds;
+        document.getElementById('cost-speed').innerText = data.cSpd + " SP";
+        document.getElementById('cost-size').innerText = data.cSz + " SP";
+        document.getElementById('cost-evo').innerText = data.cEvo + " SP"; // Added evo counter
+        document.getElementById('shard-count').innerText = data.shards;
+        const shardBlack = document.getElementById("shard-count-black");
+        if (shardBlack) shardBlack.innerText = data.shards;
+
+        const goldLevel = Math.min(5, data.goldAppleLevel || 0);
+        const dualLevel = Math.min(5, data.dualAppleLevel || 0);
+        const echoLevel = Math.min(5, data.echoGrowthLevel || 0);
+        const goldBtn = document.getElementById('gold-apple-btn');
+        const dualBtn = document.getElementById('dual-apple-btn');
+        const echoBtn = document.getElementById('echo-growth-btn');
+        const sheddingBtn = document.getElementById('shedding-btn');
+        const cannibalismBtn = document.getElementById('cannibalism-btn');
+        const impactShedBtn = document.getElementById('impact-shed-btn');
+        const goldDesc = document.getElementById('gold-apple-desc');
+        const dualDesc = document.getElementById('dual-apple-desc');
+        const echoDesc = document.getElementById('echo-growth-desc');
+        const sheddingDesc = document.getElementById('shedding-desc');
+        const cannibalismDesc = document.getElementById('cannibalism-desc');
+        const impactShedDesc = document.getElementById('impact-shed-desc');
+
+        if (goldBtn) {
+            const goldCost = getGoldAppleCost();
+            if (goldLevel >= 5) {
+                goldBtn.innerHTML = 'Gold Apple <span class="btn-price">MAXED</span>';
+                goldBtn.style.opacity = '0.6';
+            } else {
+                goldBtn.innerHTML = 'Gold Apple <span class="btn-price">' + goldCost + ' SHARD</span>';
+                goldBtn.style.opacity = '1';
+            }
+        }
+
+        const goldBonus = Math.min(100, goldLevel * 20);
+        const xpBonus = Math.min(20, goldLevel * 5);
+        const dualChance = getDualAppleChance();
+        if (goldDesc) goldDesc.innerText = 'Gold Apple (1 shard base): Apples give +' + goldBonus + '% gold (max 100%) and +' + xpBonus + '% XP (max 20%)';
+        if (dualBtn) {
+            if (dualLevel >= 5) {
+                dualBtn.innerHTML = 'Dual Apple <span class="btn-price">MAXED</span>';
+                dualBtn.style.opacity = '0.6';
+            } else {
+                dualBtn.innerHTML = 'Dual Apple <span class="btn-price">2 SHARD</span>';
+                dualBtn.style.opacity = '1';
+            }
+        }
+        if (dualDesc) dualDesc.innerText = 'Dual Apple (2 shard): ' + dualChance + '% chance two apples spawn upgradable max 55%';
+        if (echoBtn) {
+            if (echoLevel >= 5) {
+                echoBtn.innerHTML = 'Echo Growth <span class="btn-price">MAXED</span>';
+                echoBtn.style.opacity = '0.6';
+            } else {
+                echoBtn.innerHTML = 'Echo Growth <span class="btn-price">3 SHARD</span>';
+                echoBtn.style.opacity = '1';
+            }
+        }
+        if (echoDesc) echoDesc.innerText = 'Echo Growth (3 shard): ' + (echoLevel > 0 ? 'Every 5th apple grants +' + getEchoGrowthBonus() + ' free growth.' : 'Locked');
+        const sheddingLevel = Math.min(5, data.sheddingLevel || 0);
+        if (sheddingBtn) {
+            if (sheddingLevel >= 5) {
+                sheddingBtn.innerHTML = 'Shedding <span class="btn-price" style="color:var(--soul)">MAXED</span>';
+                sheddingBtn.style.opacity = '0.6';
+            } else {
+                sheddingBtn.innerHTML = 'Shedding <span class="btn-price" style="color:var(--soul)">1 SHARD</span>';
+                sheddingBtn.style.opacity = '1';
+            }
+        }
+        if (sheddingDesc) {
+            if (sheddingLevel <= 0) {
+                sheddingDesc.innerText = 'Every 15 apples, shed 2 tail segments.';
+            } else {
+                const profile = getSheddingProfile();
+                    sheddingDesc.innerText = ' Every ' + profile.apples + ' apples (max: 10 Apples), shed ' + profile.tails + ' tail segments. (max: 5 Tails)';            }
+        }
+        if (cannibalismBtn) {
+            if (data.cannibalism) {
+                cannibalismBtn.innerHTML = 'Cannibalism <span class="btn-price" style="color:var(--soul)">UNLOCKED</span>';
+                cannibalismBtn.style.opacity = '0.6';
+            } else {
+                cannibalismBtn.innerHTML = 'Cannibalism <span class="btn-price" style="color:var(--soul)">3 SHARDS</span>';
+                cannibalismBtn.style.opacity = '1';
+            }
+        }
+        if (cannibalismDesc) { 
+            cannibalismDesc.innerText = 'Shed tail pieces can be eaten for 2x apple rewards with all current boosts.'; 
+        }
+        if (impactShedBtn) {
+            if (data.shedOnImpact) {
+                impactShedBtn.innerHTML = 'Shed on Impact <span class="btn-price" style="color:var(--soul)">UNLOCKED</span>';
+                impactShedBtn.style.opacity = '0.6';
+            } else {
+                impactShedBtn.innerHTML = 'Shed on Impact <span class="btn-price" style="color:var(--soul)">5 SHARDS</span>';
+                impactShedBtn.style.opacity = '1';
+            }
+        }
+        if (impactShedDesc) {
+            impactShedDesc.innerText = 'Wall collisions shed tail segments instead of killing you.';
+        }
+
+        const setApplePathVisibility = (btnId, isVisible) => {
+            const btn = document.getElementById(btnId);
+            if (!btn) return;
+            btn.style.display = isVisible ? '' : 'none';
+            const desc = btn.nextElementSibling;
+            if (desc && desc.classList.contains('stat-label')) {
+                desc.style.display = isVisible ? '' : 'none';
+            }
+        };
+
+        const appleOrderUnlocked = {
+            dualApple: (data.goldAppleLevel || 0) > 0,
+            echoGrowth: (data.dualAppleLevel || 0) > 0
+        };
+        setApplePathVisibility('dual-apple-btn', appleOrderUnlocked.dualApple);
+        setApplePathVisibility('echo-growth-btn', appleOrderUnlocked.echoGrowth);
+        setApplePathVisibility('cannibalism-btn', (data.sheddingLevel || 0) > 0);
+        setApplePathVisibility('impact-shed-btn', data.cannibalism);
+
+        const setOwned = (id, txt, owned, price) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.classList.remove('locked-choice');
+            el.disabled = false;
+            el.style.display = '';
+            el.style.opacity = owned ? '0.6' : '1';
+            const shardLabel = price === 1 ? 'SHARD' : 'SHARDS';
+            el.innerHTML = `${txt} <span class="btn-price" style="color:var(--soul)">${owned ? 'UNLOCKED' : `${price} ${shardLabel}`}</span>`;
+        };
+        setOwned('dual-phase-btn', 'Dual Phase', data.dualPhase, 2);
+        setOwned('phase-greed-btn', 'Phase Greed', data.phaseGreed, 3);
+        setOwned('phase-expertise-btn', 'Phase Expertise', data.phaseExpertise, 3);
+        setOwned('phase-premonition-btn', 'Phase Premonition', data.phasePremonition, 4);
+        setOwned('phase-charge-btn', 'Phase Charge', data.phaseCharge, 5);
+        setOwned('temporal-phase-slow-btn', 'Temporal Phase Slow', data.temporalPhaseSlow, 6);
+        setOwned('immortal-phase-btn', 'Immortal Phase', data.immortalPhase, 10);
+
+        const soulBtn = document.getElementById('soul-insurance-btn');
+        const soulDesc = document.getElementById('soul-insurance-desc');
+        if (soulBtn && soulDesc) {
+            soulBtn.classList.remove('locked-choice');
+            soulBtn.disabled = false;
+            if (!data.soulInsurance) {
+                soulBtn.style.opacity = '1';
+                soulBtn.onclick = () => buySoulUpgrade('soulInsurance');
+                soulBtn.innerHTML = `Soul Insurance <span class="btn-price" style="color:var(--soul)">2 SHARDS</span>`;
+                soulDesc.innerHTML = `First death per run revives you at half length with a SOUL ANCHOR.`;
+            } else if (!data.fracturedSoul) {
+                soulBtn.style.opacity = '1';
+                soulBtn.onclick = () => buySoulUpgrade('fracturedSoul');
+                soulBtn.innerHTML = `Fractured Soul <span class="btn-price" style="color:var(--soul)">4 SHARDS</span>`;
+                soulDesc.innerText = 'Insurance leaves behind a soul husk. Touching it restores lost length.';
+            } else {
+                soulBtn.style.opacity = '0.6';
+                soulBtn.onclick = null;
+                soulBtn.innerHTML = `Fractured Soul <span class="btn-price" style="color:var(--soul)">UNLOCKED</span>`;
+                soulDesc.innerText = 'Insurance leaves behind a soul husk. Touching it restores lost length.';
+            }
+        }
+
+        const greedBtn = document.getElementById('phase-greed-btn');
+        const expertiseBtn = document.getElementById('phase-expertise-btn');
+        if (greedBtn && expertiseBtn) {
+            if (data.phaseExpertise && !data.phaseGreed) {
+                greedBtn.classList.add('locked-choice');
+                greedBtn.disabled = true;
+                greedBtn.innerHTML = `Phase Greed <span class="btn-price" style="color:#ff8f8f">🔒 LOCKED (Picked Expertise)</span>`;
+            } else if (data.phaseGreed && !data.phaseExpertise) {
+                expertiseBtn.classList.add('locked-choice');
+                expertiseBtn.disabled = true;
+                expertiseBtn.innerHTML = `Phase Expertise <span class="btn-price" style="color:#ff8f8f">🔒 LOCKED (Picked Greed)</span>`;
+            }
+        }
+
+        const setPhasePathVisibility = (btnId, isVisible) => {
+            const btn = document.getElementById(btnId);
+            if (!btn) return;
+            btn.style.display = isVisible ? '' : 'none';
+            const desc = btn.nextElementSibling;
+            if (desc && desc.classList.contains('upgrade-desc')) {
+                desc.style.display = isVisible ? '' : 'none';
+            }
+        };
+
+        const phaseOrderUnlocked = {
+            dualPhase: data.hasPhase,
+            greedExpertise: data.dualPhase,
+            phasePremonition: data.phaseGreed || data.phaseExpertise,
+            phaseCharge: data.phasePremonition,
+            temporalPhaseSlow: data.phaseCharge,
+            immortalPhase: data.temporalPhaseSlow
+        };
+
+        setPhasePathVisibility('dual-phase-btn', phaseOrderUnlocked.dualPhase);
+        setPhasePathVisibility('phase-greed-btn', phaseOrderUnlocked.greedExpertise);
+        setPhasePathVisibility('phase-expertise-btn', phaseOrderUnlocked.greedExpertise);
+        setPhasePathVisibility('phase-premonition-btn', phaseOrderUnlocked.phasePremonition);
+        setPhasePathVisibility('phase-charge-btn', phaseOrderUnlocked.phaseCharge);
+        setPhasePathVisibility('temporal-phase-slow-btn', phaseOrderUnlocked.temporalPhaseSlow);
+        setPhasePathVisibility('immortal-phase-btn', phaseOrderUnlocked.immortalPhase);
+
+        updateSkinShopUI();
+    
+    window.buySoulUpgrade = function(type) {
+    const costs = {
+        noWall: 1, phase: 1 + data.phasePower, dualPhase: 2, phaseGreed: 3, phaseExpertise: 3, phasePremonition: 4, phaseCharge: 5, temporalPhaseSlow: 6, soulInsurance: 2, fracturedSoul: 4, immortalPhase: 10
+    };
+
+    if (type === 'phaseGreed' && data.phaseExpertise) return alert('Phase Expertise already chosen');
+    if (type === 'phaseExpertise' && data.phaseGreed) return alert('Phase Greed already chosen');
+    if (type === 'dualPhase' && !data.hasPhase) return alert('Phase Shift required');
+    if ((type === 'phaseGreed' || type === 'phaseExpertise') && !data.dualPhase) return alert('Dual Phase required');
+    if (type === 'phasePremonition' && !(data.phaseGreed || data.phaseExpertise)) return alert('Phase Greed or Phase Expertise required');
+    if (type === 'phaseCharge' && !data.phasePremonition) return alert('Phase Premonition required');
+    if (type === 'temporalPhaseSlow' && !data.phaseCharge) return alert('Phase Charge required');
+    if (type === 'immortalPhase' && !data.temporalPhaseSlow) return alert('Temporal Phase Slow required');
+
+    const flags = ['noWall','hasPhase','dualPhase','phaseGreed','phaseExpertise','phasePremonition','phaseCharge','temporalPhaseSlow','soulInsurance','fracturedSoul','immortalPhase'];
+    if (flags.includes(type) && data[type]) return alert('Already unlocked');
+    if (type === 'fracturedSoul' && !data.soulInsurance) return alert('Soul Insurance required');
+
+    const cost = costs[type] || 0;
+    if (data.shards < cost) return alert('Not enough shards (' + cost + ' needed)');
+    data.shards -= cost;
+
+    if (type === 'phase') {
+        data.hasPhase = true;
+        data.phasePower++;
+        phaseCharges = data.dualPhase ? 2 : 1;
+    } else if (type === 'noWall') data.noWall = true;
+    else if (type === 'dualPhase') { data.dualPhase = true; phaseCharges = 2; }
+    else if (type === 'phaseGreed') data.phaseGreed = true;
+    else if (type === 'phaseExpertise') data.phaseExpertise = true;
+    else if (type === 'phasePremonition') data.phasePremonition = true;
+    else if (type === 'phaseCharge') data.phaseCharge = true;
+    else if (type === 'temporalPhaseSlow') data.temporalPhaseSlow = true;
+    else if (type === 'soulInsurance') data.soulInsurance = true;
+    else if (type === 'fracturedSoul') data.fracturedSoul = true;
+    else if (type === 'immortalPhase') data.immortalPhase = true;
+
+    registerPurchase();
+    save();
+    updateUI();
+};
+    
+// Soul shop button states
+const soulButtons = document.querySelectorAll('#soul-altar .classic-btn');
+
+soulButtons.forEach(btn => {
+    if (btn.innerText.includes('No Wall') && data.noWall) {
+        btn.style.opacity = '0.4';
+        btn.style.pointerEvents = 'none';
+        btn.innerHTML = 'No Wall Collision <span class="btn-price">OWNED</span>';
+    }
+        });
+    updatePhaseUI();
+    }
+    let apple_growth = 0
+
+function handleBoardFull() {
+if (endingActive) return;
+endingActive = true;
+
+if (data.cheatActive === true) {
+    runCheaterSelfEatSequence();
+} else if (data.cardLinked === true){
+    data.endingHellUnlocked = true;
+    save();
+    beginEndingSequence("HELL ENDING HERE!");
+} else {
+    data.endingAverageUnlocked = true;
+    save();
+    beginEndingSequence("You win! Reload imminent!");
+}
+}
+
+function getEmptyAppleSpots(exclude = []) {
+    const gridSize = 20;
+    const emptySpots = [];
+
+    for (let x = 0; x < gridSize; x++) {
+        for (let y = 0; y < gridSize; y++) {
+            const blockedBySnake = snake.some(s => s.x === x && s.y === y);
+            const blockedByExclude = exclude.some(e => e && e.x === x && e.y === y);
+            if (!blockedBySnake && !blockedByExclude) emptySpots.push({ x, y });
+        }
+    }
+
+    return emptySpots;
+}
+
+function pickAppleSpot(exclude = []) {
+    const spots = getEmptyAppleSpots(exclude);
+    if (spots.length === 0) {
+        handleBoardFull();
+        return null;
+    }
+    return spots[Math.floor(Math.random() * spots.length)];
+}
+
+    // Function to genfood a new apple position, ensuring it doesn't spawn on the snake
+    function generateFood() {
+    food = pickAppleSpot();
+    bonusFood = null;
+
+    if (!food) return;
+
+    const shouldSpawnDual = Math.random() * 100 < getDualAppleChance();
+    if (shouldSpawnDual) {
+        bonusFood = pickAppleSpot([food]);
+    }
+
+    queueNextAppleLocation();
+    apple_growth = apple_growth + 1
+    }
+
+    function respawnMainApple() {
+  const blocked = bonusFood ? [bonusFood] : [];
+  if (data.phasePremonition && nextAppleLocation && !isSpotBlocked(nextAppleLocation, blocked)) {
+    food = { x: nextAppleLocation.x, y: nextAppleLocation.y };
+  } else {
+    const nextFood = pickAppleSpot(blocked);
+    if (nextFood) food = nextFood;
+  }
+  queueNextAppleLocation();
+}
+
+function respawnBonusApple() {
+  const nextBonus = pickAppleSpot(food ? [food] : []);
+  if (nextBonus) bonusFood = nextBonus;
+}
+
+function getGoldAppleRenderColor(levelOffset = 0) {
+  const baseAppleColor = data.appleSkin || '#ff2e63';
+  const baseHex = baseAppleColor.startsWith('#') ? baseAppleColor : '#ff2e63';
+  const safeHex = /^#[0-9a-fA-F]{6}$/.test(baseHex) ? baseHex : '#ff2e63';
+  const baseRed = parseInt(safeHex.slice(1, 3), 16);
+  const baseGreen = parseInt(safeHex.slice(3, 5), 16);
+  const baseBlue = parseInt(safeHex.slice(5, 7), 16);
+  const goldRed = 255;
+  const goldGreen = 215;
+  const goldBlue = 0;
+  const level = Math.min(5, Math.max(0, (data.goldAppleLevel || 0) + levelOffset));
+  const t = level / 5;
+  const red = Math.round(baseRed + (goldRed - baseRed) * t);
+  const green = Math.round(baseGreen + (goldGreen - baseGreen) * t);
+  const blue = Math.round(baseBlue + (goldBlue - baseBlue) * t);
+  return `rgb(${red}, ${green}, ${blue})`;
+}
+
+
+function queueNextAppleLocation() {
+  const exclude = [];
+  if (food) exclude.push(food);
+  if (bonusFood) exclude.push(bonusFood);
+  const spots = getEmptyAppleSpots(exclude);
+  if (spots.length === 0) {
+    nextAppleLocation = null;
+    return;
+  }
+  nextAppleLocation = spots[Math.floor(Math.random() * spots.length)];
+}
+
+function isSpotBlocked(spot, exclude = []) {
+  if (!spot) return true;
+  const onSnake = snake.some(s => s.x === spot.x && s.y === spot.y);
+  const inExclude = exclude.some(e => e && e.x === spot.x && e.y === spot.y);
+  return onSnake || inExclude;
+}
+
+function drawPatternedSnakeSegment(segment, isHead = false) {
+  const px = segment.x * grid + 1;
+  const py = segment.y * grid + 1;
+  const size = grid - 2;
+  const isImageSkin = data.skin === IMAGE_SKIN_ID;
+  const baseColor = getActiveSnakeColor();
+  const sharedRotation = getSnakeImageRotation();
+
+  if (isImageSkin && !isPhasing && !cheatActive) {
+    const img = isHead ? snakeImageSkinAssets.head : snakeImageSkinAssets.body;
+    if (img && img.complete && img.naturalWidth > 0) {
+      drawRotatedSnakeImage(img, px, py, size, sharedRotation);
+      return;
+    }
+  }
+
+  if (data.neonEnabled) {
+    ctx.shadowColor = isHead ? '#ffffff' : baseColor;
+    ctx.shadowBlur = isHead ? 12 : 8;
+  } else {
+    ctx.shadowBlur = 0;
+    ctx.shadowColor = 'transparent';
+  }
+  ctx.fillStyle = isHead ? (isPhasing ? 'white' : '#fff') : baseColor;
+  ctx.fillRect(px, py, size, size);
+  ctx.shadowBlur = 0;
+  ctx.shadowColor = 'transparent';
+
+  if (isHead) return;
+
+  const pattern = data.snakePattern || 'solid';
+  if (pattern === 'solid') return;
+
+  if (pattern === 'stripes') {
+    ctx.fillStyle = 'rgba(255,255,255,0.45)';
+    ctx.fillRect(px + 2, py, 2, size);
+    ctx.fillRect(px + 7, py, 2, size);
+    ctx.fillRect(px + 12, py, 2, size);
+  } else if (pattern === 'checker') {
+    ctx.fillStyle = 'rgba(255,255,255,0.38)';
+    ctx.fillRect(px, py, 4, 4);
+    ctx.fillRect(px + 6, py + 6, 4, 4);
+    ctx.fillRect(px + 12, py + 12, 4, 4);
+  } else if (pattern === 'hazard') {
+    ctx.strokeStyle = 'rgba(255,255,0,0.75)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(px + 1, py + size - 1);
+    ctx.lineTo(px + size - 1, py + 1);
+    ctx.stroke();
+  } else if (pattern === 'neon') {
+    ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(px + 2, py + 2, size - 4, size - 4);
+  }
+}
+
+function drawTailSegmentImage(segment) {
+  const px = segment.x * grid + 1;
+  const py = segment.y * grid + 1;
+  const size = grid - 2;
+  const img = snakeImageSkinAssets.tail;
+  if (img && img.complete && img.naturalWidth > 0) {
+    drawRotatedSnakeImage(img, px, py, size, getSnakeImageRotation());
+    return true;
+  }
+  return false;
+}
+
+function drawBodySegmentImage(segment) {
+  const px = segment.x * grid + 1;
+  const py = segment.y * grid + 1;
+  const size = grid - 2;
+  const img = snakeImageSkinAssets.body;
+  if (img && img.complete && img.naturalWidth > 0) {
+    drawRotatedSnakeImage(img, px, py, size, getSnakeImageRotation());
+    return true;
+  }
+  return false;
+}
+
+function isSnakeHexColor(value) {
+  return /^#[0-9a-fA-F]{6}$/.test((value || '').trim());
+}
+
+function getActiveSnakeColor() {
+  if (cheatActive) return '#013220';
+  return isSnakeHexColor(data.skin) ? data.skin : '#00fbff';
+}
+
+function drawRotatedSnakeImage(img, px, py, size, angle) {
+  const centerX = px + size / 2;
+  const centerY = py + size / 2;
+  ctx.save();
+  ctx.translate(centerX, centerY);
+  ctx.rotate(angle);
+  ctx.drawImage(img, -size / 2, -size / 2, size, size);
+  ctx.restore();
+}
+
+function getSnakeImageRotation() {
+  if (dx === 1 && dy === 0) return 0;
+  if (dx === 0 && dy === 1) return Math.PI / 2;
+  if (dx === -1 && dy === 0) return Math.PI;
+  if (dx === 0 && dy === -1) return -Math.PI / 2;
+  return 0;
+}
+
+function resetPhasePremonitionPreview() {
+  if (isPhasing && data.phasePremonition && nextAppleLocation) {
+    phasePreviewUntil = Date.now() + 900;
+  } else {
+    phasePreviewUntil = 0;
+  }
+}
+
+    function moveApple() {
+  const moveOneApple = (apple) => {
+    if (!apple) return;
+
+    const dirs = [
+      { x: 1, y: 0 },
+      { x: -1, y: 0 },
+      { x: 0, y: 1 },
+      { x: 0, y: -1 }
+    ];
+
+    const d = dirs[Math.floor(Math.random() * dirs.length)];
+
+    let nx = apple.x + d.x;
+    let ny = apple.y + d.y;
+
+    if (data.noWall) {
+      nx = (nx + 20) % 20;
+      ny = (ny + 20) % 20;
+    } else if (nx < 0 || nx >= 20 || ny < 0 || ny >= 20) {
+      return;
+    }
+
+    const onSnake = snake.some(s => s.x === nx && s.y === ny);
+    const hitsMain = food && apple !== food && food.x === nx && food.y === ny;
+    const hitsBonus = bonusFood && apple !== bonusFood && bonusFood.x === nx && bonusFood.y === ny;
+    if (onSnake || hitsMain || hitsBonus) return;
+
+    apple.x = nx;
+    apple.y = ny;
+  };
+
+  moveOneApple(food);
+  moveOneApple(bonusFood);
+}
+
+    function getTotalXPMultiplier() {
+
+  // Growth-based XP multiplier (from evo + temp evo)
+  const growthLevel = data.evo + tEvo;
+  const growthXP = 1 + (growthLevel - 1) * 0.15; // 15% per Growth level
+
+  // Length-based XP multiplier
+  const len = snake.length || (data.startSz + tSz);
+  const lengthXP = 1 + Math.floor(len / 10) * 0.10; // +10% per 10 length
+
+  // Base permanent XP multiplier
+  const baseXP = data.xpM;
+
+  // ✅ Run boosts are additive: 1.0 + (boosts)
+  const runBoost = 1.0 + runXPBoostBought + runXPBoostApple;
+
+  return baseXP * runBoost * growthXP * lengthXP;
+}
+
+function registerPurchase(options = {}) {
+    const usedCard = !!options.usedCard;
+    let changed = false;
+    if (!data.firstPurchase) {
+        data.firstPurchase = true;
+        changed = true;
+    }
+    if (usedCard && !data.firstPurchaseWithCard) {
+        data.firstPurchaseWithCard = true;
+        changed = true;
+    }
+    if (changed) save();
+}
+
+function syncBlackMarketTabState() {
+    const blackTabBtn = document.getElementById('black-market-tab-btn');
+    if (!blackTabBtn) return;
+    const unlocked = !!data.cardLinked;
+    if (unlocked && !data.blackMarketUnlocked) {
+        data.blackMarketUnlocked = true;
+        save();
+    }
+    blackTabBtn.classList.toggle('locked', !unlocked);
+    blackTabBtn.title = unlocked ? 'BLACK MARKET' : 'Enter a card to unlock BLACK MARKET';
+}
+
+    function switchShopTab(tab) {
+    const mainPanel = document.getElementById('main-shop-panel');
+    const blackPanel = document.getElementById('black-market-panel');
+    const buttons = document.querySelectorAll('#shop-tabs .tab-btn');
+
+    if(tab === 'main') {
+        mainPanel.style.display = 'block';
+        blackPanel.style.display = 'none';
+        buttons[0].classList.add('active');
+        buttons[1].classList.remove('active');
+    } else if(tab === 'black') {
+        if (!data.cardLinked) return;
+        mainPanel.style.display = 'none';
+        blackPanel.style.display = 'block';
+        buttons[0].classList.remove('active');
+        buttons[1].classList.add('active');
+    }
+}
+
+    function revealSoul() { if (data.lvl >= 10) { data.soulRevealed = true; save(); updateUI(); } }
+
+    function checkPause(e) {
+        if (modalActive) return;
+        const rect = document.getElementById('game-container').getBoundingClientRect();
+        isPaused = !(e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.y && e.clientY <= rect.bottom);
+        document.getElementById('pause-overlay').style.display = isPaused ? 'flex' : 'none';
+    }
+
+    function prestige() {
+        if (data.lvl >= data.lastPrestige + 10) {
+            const rebirthIndex = data.rebirthCount || 0;
+            const rebirthSpeech = rebirthIndex < REBIRTH_SPEECH.length
+                ? REBIRTH_SPEECH[rebirthIndex]
+                : REBIRTH_SPEECH[Math.floor(Math.random() * REBIRTH_SPEECH.length)];
+            alert(`Rebirth speech: ${rebirthSpeech}`);
+            data.shards++;
+            data.rebirthCount = rebirthIndex + 1;
+            data.lastPrestige = data.lvl; data.lvl = 1; data.exp = 0; data.nxt = 100;
+            data.sp = 0; data.spd = 140; data.startSz = 3; data.evo = 1;
+            data.cSpd = 1; data.cSz = 1; data.cEvo = 1;
+            save(); location.reload();
+        } else {
+            alert(`Not Enough Levels: ` + (data.lastPrestige + 10));
+        }
+    }
+
+    function initiateBuy(amt) {
+    buyAmt = amt;
+    purchaseType = "gold";
+
+    if (data.cardLinked) {
+        data.gems += amt;
+        registerPurchase({ usedCard: true });
+        save();
+        updateUI();
+    } else {
+        modalActive = true;
+        isPaused = true;
+        document.getElementById('modal-shield').style.display = 'flex';
+    }
+}
+
+    // Restrict card number input to numbers only
+    document.getElementById('card-num').addEventListener('input', function (e) {
+        e.target.value = e.target.value.replace(/[^0-9]/g, '');
+    });
+
+    function confirmPayment() {
+    if (document.getElementById('card-num').value.length !== 9) return;
+
+    data.cardLinked = true;
+    data.blackMarketUnlocked = true;
+    registerPurchase({ usedCard: true });
+
+    if (purchaseType === "gold") {
+        data.gems += buyAmt;
+        alert(`Purchased ${buyAmt.toLocaleString()} Gold!`);
+    }
+
+    if (purchaseType === "diamond") {
+        data.diamonds += buyAmt;
+    }
+
+    closeModal();
+    save();
+    syncBlackMarketTabState();
+    updateUI();
+}
+    function closeModal() { modalActive = false; document.getElementById('modal-shield').style.display = 'none'; }
+
+    function upgrade(type) {
+        if (type === 'speed' && data.sp >= data.cSpd) { data.sp -= data.cSpd; data.spd = Math.max(30, data.spd - 5); data.cSpd++; }
+        if (type === 'size' && data.sp >= data.cSz) { data.sp -= data.cSz; data.startSz++; data.cSz++; }
+        if (type === 'evo' && data.sp >= data.cEvo) { data.sp -= data.cEvo; data.evo++; data.cEvo++; }
+        registerPurchase();
+    save(); updateUI();
+    }
+function openTutorial() {
+    document.getElementById("tutorial-modal").style.display = "flex";
+}
+
+function closeTutorial() {
+    document.getElementById("tutorial-modal").style.display = "none";
+}
+
+function applyNeonPreference() {
+    document.body.classList.toggle('neon-off', !data.neonEnabled);
+}
+
+function updateOptionButtons() {
+    ['arrows', 'wasd', 'uhjk', 'custom'].forEach(preset => {
+        const el = document.getElementById(`control-${preset}`);
+        if (el) el.classList.toggle('active', data.controlPreset === preset);
+    });
+    const musicBtn = document.getElementById('music-toggle-btn');
+    if (musicBtn) {
+        musicBtn.textContent = data.musicEnabled ? 'ON' : 'OFF';
+        musicBtn.classList.toggle('active', data.musicEnabled);
+    }
+    const neonBtn = document.getElementById('neon-toggle-btn');
+    if (neonBtn) {
+        neonBtn.textContent = data.neonEnabled ? 'ON' : 'OFF';
+        neonBtn.classList.toggle('active', data.neonEnabled);
+    }
+    const customRow = document.getElementById('custom-control-row');
+    if (customRow) customRow.style.opacity = data.controlPreset === 'custom' ? '1' : '0.55';
+    const growthTailBtn = document.getElementById('growth-tail-btn');
+    const growthBodyBtn = document.getElementById('growth-body-btn');
+    if (growthTailBtn) growthTailBtn.classList.toggle('active', data.growthMode === 'tail');
+    if (growthBodyBtn) growthBodyBtn.classList.toggle('active', data.growthMode === 'body');
+}
+
+function fillCustomControlsUI() {
+    const controls = data.customControls || {};
+    const left = document.getElementById('custom-left');
+    const up = document.getElementById('custom-up');
+    const right = document.getElementById('custom-right');
+    const down = document.getElementById('custom-down');
+    const phaseKey = document.getElementById('phase-key-input');
+    if (left) left.value = controls.left || '';
+    if (up) up.value = controls.up || '';
+    if (right) right.value = controls.right || '';
+    if (down) down.value = controls.down || '';
+    if (phaseKey) phaseKey.value = normalizePhaseKey(data.phaseKey);
+    const languageSelect = document.getElementById('language-select');
+    if (languageSelect) languageSelect.value = data.language || 'en';
+}
+
+function setLanguage(lang) {
+    data.language = lang === 'es' ? 'es' : 'en';
+    save();
+    applyLanguage();
+}
+
+function applyLanguage() {
+    const dictionary = {
+        en: { options: 'Options', tutorial: 'Tutorial', achievements: 'Achievements', start: 'START', pressStart: 'PRESS START' },
+        es: { options: 'Opciones', tutorial: 'Tutorial', achievements: 'Logros', start: 'INICIAR', pressStart: 'PRESIONA INICIAR' }
+    };
+    const t = dictionary[data.language] || dictionary.en;
+    const startBtn = document.getElementById('start-btn');
+    const optionsBtn = document.getElementById('btn-opt2');
+    const tutorialBtn = document.querySelector('.title-buttons button[onclick="openTutorial()"]');
+    const achievementsBtn = document.getElementById('btn-achievements');
+    const pressAny = document.querySelector('.press-any');
+    if (startBtn) startBtn.textContent = t.start;
+    if (optionsBtn) optionsBtn.textContent = t.options;
+    if (tutorialBtn) tutorialBtn.textContent = t.tutorial;
+    if (achievementsBtn) achievementsBtn.textContent = t.achievements;
+    if (pressAny) pressAny.textContent = t.pressStart;
+}
+
+function openOptions() {
+    modalActive = true;
+    fillCustomControlsUI();
+    updateOptionButtons();
+    document.getElementById("options-modal").style.display = "flex";
+}
+
+function closeOptions() {
+    modalActive = false;
+    document.getElementById("options-modal").style.display = "none";
+    closeAdvancedOptions();
+}
+
+function openAdvancedOptions() {
+    document.getElementById("advanced-options-modal").style.display = "flex";
+}
+
+function closeAdvancedOptions() {
+    document.getElementById("advanced-options-modal").style.display = "none";
+}
+
+function openAchievements() {
+    const list = document.getElementById('achievements-list');
+    if (list) {
+        const achievements = [
+            { label: 'First apple eaten', done: !!data.firstAppleEaten },
+            { label: 'First purchase', done: !!data.firstPurchase },
+            { label: 'First purchase with card', done: !!data.firstPurchaseWithCard },
+            { label: 'Unlocking the black market', done: !!data.blackMarketUnlocked },
+            { label: 'Cheating', done: !!data.cheatingUnlocked },
+            { label: 'Opening a legendary from a loot box', done: !!data.legendaryLootUnlocked },
+            { label: 'First Rebirth', done: (data.lastPrestige || 0) > 0 },
+            { label: 'Soul Path Unlocked', done: !!data.soulRevealed },
+            { label: 'Hell Ending', done: !!data.endingHellUnlocked },
+            { label: 'Average Ending', done: !!data.endingAverageUnlocked },
+            { label: 'Cheater Ending', done: !!data.cheaterEndingUnlocked }
+        ];
+        list.innerHTML = achievements.map(a => `• ${a.done ? '✅' : '⬜'} ${a.label}`).join('<br>');
+    }
+    modalActive = true;
+    document.getElementById('achievements-modal').style.display = 'flex';
+}
+
+function closeAchievements() {
+    modalActive = false;
+    document.getElementById('achievements-modal').style.display = 'none';
+}
+
+function readFileAsDataURL(file, onLoad) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => onLoad(reader.result || '');
+    reader.readAsDataURL(file);
+}
+
+function uploadCustomSkinPart(part, event) {
+    const file = event && event.target && event.target.files ? event.target.files[0] : null;
+    readFileAsDataURL(file, (dataUrl) => {
+        const key = `customSkin${part.charAt(0).toUpperCase() + part.slice(1)}`;
+        data[key] = dataUrl;
+        if (snakeImageSkinAssets[part]) snakeImageSkinAssets[part].src = dataUrl;
+        save();
+    });
+}
+
+function useUploadedSkin() {
+    if (!data.customSkinHead && !data.customSkinBody && !data.customSkinTail) return alert('Upload at least one custom skin image first.');
+    if (!data.owned.includes(IMAGE_SKIN_ID)) return alert('Buy the image skin in the shop first (30k).');
+    data.skin = IMAGE_SKIN_ID;
+    save();
+    updateUI();
+}
+
+function uploadCustomMusic(event) {
+    const file = event && event.target && event.target.files ? event.target.files[0] : null;
+    readFileAsDataURL(file, (dataUrl) => {
+        data.customMusic = dataUrl;
+        defaultMusic.src = dataUrl;
+        defaultMusic.currentTime = 0;
+        if (!modalActive && !isPaused && data.musicEnabled) playDefaultMusic();
+        save();
+    });
+}
+
+function clearCustomMusic() {
+    data.customMusic = '';
+    defaultMusic.src = "https://codehs.com/uploads/0d78da48c3e737d0555b5a3767a52f83";
+    defaultMusic.currentTime = 0;
+    if (!modalActive && !isPaused && data.musicEnabled) playDefaultMusic();
+    save();
+}
+
+function applyGameBackground() {
+    const gameContainer = document.getElementById('game-container');
+    if (!gameContainer) return;
+    if (data.customGameBackground) {
+        playfieldBackgroundImage.src = data.customGameBackground;
+        gameContainer.style.backgroundImage = 'none';
+    } else {
+        playfieldBackgroundImage.src = '';
+        gameContainer.style.backgroundImage = 'none';
+    }
+    gameContainer.style.backgroundSize = '';
+    gameContainer.style.backgroundPosition = '';
+}
+
+function drawPlayfieldBackground() {
+    if (data.customGameBackground && playfieldBackgroundImage.complete && playfieldBackgroundImage.naturalWidth > 0) {
+        ctx.drawImage(playfieldBackgroundImage, 0, 0, canvas.width, canvas.height);
+        return;
+    }
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+function uploadCustomBackground(event) {
+    const file = event && event.target && event.target.files ? event.target.files[0] : null;
+    readFileAsDataURL(file, (dataUrl) => {
+        data.customGameBackground = dataUrl;
+        applyGameBackground();
+        save();
+    });
+}
+
+function clearCustomBackground() {
+    data.customGameBackground = '';
+    applyGameBackground();
+    save();
+}
+
+function setGrowthMode(mode) {
+    if (mode !== 'tail' && mode !== 'body') return;
+    data.growthMode = mode;
+    save();
+    updateOptionButtons();
+}
+
+function setControlPreset(preset) {
+    data.controlPreset = preset;
+    save();
+    updateOptionButtons();
+}
+
+function updateCustomControl(direction, value) {
+    data.customControls[direction] = normalizeControlValue(value);
+    save();
+}
+
+function updatePhaseKey(value) {
+    data.phaseKey = normalizePhaseKey(value);
+    save();
+    updatePhaseUI();
+}
+
+function toggleMusicEnabled() {
+    data.musicEnabled = !data.musicEnabled;
+    if (!data.musicEnabled) {
+        defaultMusic.pause();
+        endingMusic.pause();
+        creditsMusic.pause();
+    } else {
+        if (!modalActive && !isPaused) playDefaultMusic();
+    }
+    save();
+    updateOptionButtons();
+}
+
+function toggleNeonEnabled() {
+    data.neonEnabled = !data.neonEnabled;
+    applyNeonPreference();
+    save();
+    updateOptionButtons();
+}
+
+function updateSkinShopUI() {
+    if (!Array.isArray(data.owned)) data.owned = ['#00fbff'];
+    document.querySelectorAll('.skin-opt').forEach(el => {
+        const skinId = (el.dataset.skinId || '').trim();
+        const hex = (el.dataset.hex || '').toLowerCase();
+        const skinKey = skinId || hex;
+        const defaultLabel = el.dataset.label || '';
+        const requirement = el.dataset.requires || '';
+        const requirementMet = isSkinRequirementMet(requirement);
+        const owned = data.owned.includes(skinKey);
+        const selected = (data.skin || '').toLowerCase() === skinKey.toLowerCase();
+
+        el.style.display = (requirementMet || owned) ? 'flex' : 'none';
+        if (!requirementMet && !owned) return;
+
+        el.innerText = owned ? 'OWNED' : defaultLabel;
+        el.style.opacity = owned ? '0.55' : '1';
+        el.style.border = selected ? '2px solid #fff' : '1px solid rgba(255,255,255,0.1)';
+        el.style.boxShadow = selected ? '0 0 8px rgba(255,255,255,0.65)' : 'none';
+    });
+}
+
+function isSkinRequirementMet(requirement) {
+    if (!requirement) return true;
+    if (requirement === 'cheat') return data.cheatActive === true || cheatActive === true;
+    if (requirement === 'hellEnding') return data.endingHellUnlocked === true;
+    if (requirement === 'rebirth') return (data.lastPrestige || 0) > 0;
+    if (requirement === 'averageEnding') return data.endingAverageUnlocked === true;
+    return true;
+}
+function openCredits(endingText = "Thanks for playing Snake 2.") {
+    const textEl = document.getElementById("credits-ending-text");
+    if (textEl) textEl.innerText = endingText;
+
+    const modal = document.getElementById("credits-modal");
+    if (modal) modal.style.display = "flex";
+
+    isPaused = true;
+    modalActive = true;
+
+    const roll = document.getElementById("credits-roll");
+    if (roll) {
+        roll.classList.remove("scrolling");
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                roll.classList.add("scrolling");
+            });
+        });
+    }
+
+    defaultMusic.pause();
+    endingMusic.pause();
+    creditsMusic.currentTime = 0;
+    if (data.musicEnabled) creditsMusic.play().catch(() => {});
+}
+
+function closeCredits() {
+    creditsMusic.pause();
+    creditsMusic.currentTime = 0;
+
+    const modal = document.getElementById("credits-modal");
+    if (modal) modal.style.display = "none";
+
+    if (endingActive) {
+        location.reload();
+        return;
+    }
+
+    modalActive = false;
+    if (!titleActive) isPaused = false;
+    if (!titleActive && data.musicEnabled) playDefaultMusic();
+}
+
+function startCredits(endingText) {
+    isPaused = true;
+    modalActive = true;
+    openCredits(endingText);
+}
+    function buyBuff(type) {
+  let purchased = false;
+  if (type === 'speed' && data.gems >= 500) {
+    data.gems -= 500;
+    tSpd += 20;
+    purchased = true;
+  }
+
+  if (type === 'size' && data.gems >= 1000) {
+    data.gems -= 1000;
+    tSz++;
+    purchased = true;
+
+    // ✅ Instantly add +1 length this run
+    growCount += 1;
+  }
+
+  if (type === 'evo' && data.gems >= 1500) {
+    data.gems -= 1500;
+    tEvo++;
+    purchased = true;
+  }
+
+  if (purchased) registerPurchase();
+  save();
+  updateUI();
+}
+
+    function buyXPBoost() {
+  if (data.gems < 5000) return;
+
+  data.gems -= 5000;
+
+  // ✅ Run-only multiplier (resets on death)
+  runXPBoostBought += 5.0;
+
+  registerPurchase();
+  save();
+  updateUI();
+}
+function buySkin(hex, price) { 
+        const skinKey = (hex || '').toLowerCase();
+        if (!Array.isArray(data.owned)) data.owned = ['#00fbff'];
+
+        if (data.owned.includes(skinKey)) {
+            data.skin = skinKey;
+        } else if (data.gems >= price) {
+            data.gems -= price;
+            data.owned.push(skinKey);
+            data.skin = skinKey;
+        } else {
+            return;
+        }
+
+    registerPurchase();
+    save(); updateUI();
+    }
+    function buyDiamondPack(amount) {
+    buyAmt = amount;
+    purchaseType = "diamond";
+
+    if (data.cardLinked) {
+        data.diamonds += amount;
+        registerPurchase({ usedCard: true });
+        save();
+        updateUI();
+    } else {
+        modalActive = true;
+        isPaused = true;
+        document.getElementById('modal-shield').style.display = 'flex';
+    }
+}
+    function buyShardWithDiamonds(amount) {
+    let cost = 0;
+
+    if (amount === 1) cost = 5;
+    if (amount === 3) cost = 12;
+    if (amount === 10) cost = 35;
+    if (amount === 15) cost = 50;
+
+    if (cost <= 0) return;
+
+    if (data.diamonds < cost) {
+        alert("Not enough Diamonds!");
+        return;
+    }
+
+    data.diamonds -= cost;
+    data.shards += amount;
+
+    registerPurchase();
+    save();
+    updateUI();
+}
+    function buySPWithDiamonds(amount) {
+    let cost = 0;
+
+    if (amount === 5) cost = 5;
+    if (amount === 15) cost = 12;
+    if (amount === 40) cost = 30;
+    if (amount === 100) cost = 65;
+
+    if (cost <= 0) return;
+
+    if (data.diamonds < cost) {
+        alert("Not enough Diamonds!");
+        return;
+    }
+
+    data.diamonds -= cost;
+    data.sp += amount;
+
+    registerPurchase();
+    save();
+    updateUI();
+}
+    function buyLevelBoost() {
+    const cost = 50; // Diamond cost
+
+    if (data.diamonds < cost) {
+        alert("Not enough Diamonds!");
+        return;
+    }
+
+    data.diamonds -= cost;
+
+    // Add exactly 10 levels, nothing else
+    data.lvl += 10;
+
+    // Optional: recalc XP for next level (but don't change xpM or sp or anything else)
+    data.exp = 0;
+    data.nxt *= Math.pow(1.10, 10); // Increase next-level XP 10 times as usual
+
+    registerPurchase();
+    save();
+    updateUI();
+
+    alert("Level 10 Boost purchased! +10 Levels applied.");
+}
+    function openGuaranteedLootBox(guaranteedRarity) {
+    // Diamond costs per rarity
+    const costMap = { RARE: 30, EPIC: 60, ULTRA: 100, LEGENDARY: 200 };
+    const cost = costMap[guaranteedRarity] || 20;
+
+    if (data.diamonds < cost) {
+        alert("Not enough Diamonds!");
+        return;
+    }
+
+    data.diamonds -= cost;
+
+    const results = [];
+
+    // 1️⃣ Ensure guaranteed rarity item
+    const pool = LOOT_TABLE[guaranteedRarity];
+    const guaranteedItem = pool[Math.floor(Math.random() * pool.length)];
+    results.push({ rarity: guaranteedRarity, result: guaranteedItem.grant() });
+
+    // 2️⃣ Fill the rest of the box (2 more items) normally
+    for (let i = 1; i < 3; i++) {
+        results.push(rollLootItem());
+    }
+    if (results.some(r => r.rarity === 'LEGENDARY') && !data.legendaryLootUnlocked) {
+        data.legendaryLootUnlocked = true;
+    }
+
+    registerPurchase();
+    save();
+    updateUI();
+
+    alert(
+        `GUARANTEED ${guaranteedRarity} LOOT BOX OPENED!\n\n` +
+        results.map(r => `(${r.rarity}) ${r.result}`).join("\n")
+    );
+}
+
+
+    function resetGame() { if(confirm("WIPE EVERYTHING?")) { localStorage.clear(); location.reload(); } }
+
+    function godMode() { data.lvl += 10; data.sp += 9999; data.gems += 1000000; data.shards += 99; data.diamonds += 99; data.soulRevealed = true; data.cheatActive = true; data.cheatingUnlocked = true; data.skin = '#013220'; save(); updateUI();}
+
+const LOOT_RARITY = {
+    COMMON: 69,
+    RARE: 25,
+    EPIC: 5,
+    ULTRA: 2,
+    LEGENDARY: 1
+};
+
+const LOOT_TABLE = {
+    COMMON: [
+        {
+            id: "gold",
+            name: "Gold",
+            min: 100,
+            max: 500,
+            grant() {
+                const amount = Math.floor(
+                    Math.random() * (this.max - this.min + 1)
+                ) + this.min;
+                data.gems += amount;
+                return `+${amount} Gold`;
+            }
+        }
+    ],
+
+    RARE: [
+        {
+            id: "skin",
+            name: "Snake Color",
+            colors: [
+                "#ff00ff",
+                "#ffd700",
+                "#ff4500",
+                "#adff2f",
+                "#9370db",
+                "#1e90ff"
+            ],
+            grant() {
+                const color = this.colors[
+                    Math.floor(Math.random() * this.colors.length)
+                ];
+
+                if (!data.owned.includes(color)) {
+                    data.owned.push(color);
+                    data.skin = color;
+                    return `Unlocked Skin ${color}`;
+                }
+
+                // Duplicate fallback
+                data.gems += 500;
+                return "Duplicate Skin → +500 Gold";
+            }
+        },
+        {
+            id: "apple-skin",
+            name: "Apple Color",
+            colors: [
+                "#00ff7f",
+                "#00e5ff",
+                "#7b68ee",
+                "#ffa500",
+                "#ff1493",
+                "#ffffff"
+            ],
+            grant() {
+                const color = this.colors[
+                    Math.floor(Math.random() * this.colors.length)
+                ];
+
+                if (!Array.isArray(data.ownedAppleSkins)) {
+                    data.ownedAppleSkins = ['#ff2e63'];
+                }
+
+                if (!data.ownedAppleSkins.includes(color)) {
+                    data.ownedAppleSkins.push(color);
+                    data.appleSkin = color;
+                    return `Unlocked Apple Color ${color}`;
+                }
+
+                // Duplicate fallback
+                data.gems += 500;
+                return "Duplicate Apple Color → +500 Gold";
+            }
+        }
+    ],
+
+    EPIC: [
+        {
+            id: "shard",
+            name: "Shard",
+            grant() {
+                data.shards += 1;
+                return "+1 Shard";
+            }
+        }
+    ],
+    ULTRA: [
+        {
+            id: "pattern",
+            name: "Snake Pattern",
+            patterns: ["stripes", "checker", "hazard", "neon"],
+            grant() {
+                const pattern = this.patterns[
+                    Math.floor(Math.random() * this.patterns.length)
+                ];
+
+                if (!Array.isArray(data.ownedPatterns)) {
+                    data.ownedPatterns = ['solid'];
+                }
+
+                if (!data.ownedPatterns.includes(pattern)) {
+                    data.ownedPatterns.push(pattern);
+                    data.snakePattern = pattern;
+                    return `Unlocked Pattern: ${pattern}`;
+                }
+
+                data.gems += 5000;
+                return "Duplicate Pattern → +5000 Gold";
+            }
+        }
+    ],
+    LEGENDARY: [
+        {
+            id: "gold",
+            name: "Gold",
+            grant() {
+                data.gems += 1;
+                return "+1 gold";
+            }
+        }
+    ]
+   
+
+};
+function rollRarity() {
+    const roll = Math.random() * 100;
+    let cumulative = 0;
+
+    for (const [rarity, weight] of Object.entries(LOOT_RARITY)) {
+        cumulative += weight;
+        if (roll <= cumulative) return rarity;
+    }
+
+    return "COMMON";
+}
+function rollLootItem() {
+    const rarity = rollRarity();
+    const pool = LOOT_TABLE[rarity];
+    const item = pool[Math.floor(Math.random() * pool.length)];
+
+    return {
+        rarity,
+        result: item.grant()
+    };
+}
+function openLootBox() {
+    const cost = 2500;
+    if (data.gems < cost) return alert("Need 2500 G for a paid loot box.");
+    data.gems -= cost;
+    const results = [];
+
+    for (let i = 0; i < 3; i++) {
+        results.push(rollLootItem());
+    }
+    if (results.some(r => r.rarity === 'LEGENDARY') && !data.legendaryLootUnlocked) {
+        data.legendaryLootUnlocked = true;
+    }
+
+    registerPurchase();
+    save();
+    updateUI();
+
+    alert(
+        "PAID LOOT BOX OPENED!\n\n" +
+        results.map(r => `(${r.rarity}) ${r.result}`).join("\n")
+    );
+}
+
+function returnToTitle() {
+    if (!confirm('Return to title screen now?')) return;
+    data.titleSeen = false;
+    save();
+    location.reload();
+}
+
+function reducePhaseCooldown(seconds) {
+    if (!phaseCD || !phaseCooldownEndAt || seconds <= 0) return;
+
+    const reductionMs = seconds * 1000;
+    const newEnd = phaseCooldownEndAt - reductionMs;
+    const remainingMs = Math.max(0, newEnd - Date.now());
+
+    clearTimeout(phaseCooldownTimer);
+
+    if (remainingMs <= 0) {
+        phaseCD = false;
+        phaseCooldownEndAt = 0;
+        phaseCharges = data.dualPhase ? 2 : 1;
+        updatePhaseUI();
+        return;
+    }
+
+    phaseCooldownEndAt = newEnd;
+    phaseCooldownTimer = setTimeout(() => {
+        phaseCD = false;
+        phaseCooldownEndAt = 0;
+        phaseCharges = data.dualPhase ? 2 : 1;
+        updatePhaseUI();
+    }, remainingMs);
+}
+
+function getLoopDelay() {
+    const baseDelay = Math.max(25, data.spd - tSpd);
+    if (isPhasing && data.temporalPhaseSlow) {
+        return Math.round(baseDelay * 1.3);
+    }
+    return baseDelay;
+}
+
+function createSpawnSnake(length) {
+    const finalLength = Math.max(2, Math.floor(length));
+    const freshSnake = [];
+    for (let i = 0; i < finalLength; i++) {
+        freshSnake.push({ x: 10 - i, y: 10 });
+    }
+    return freshSnake;
+}
+
+function showSoulAnchorMessage() {
+    const msg = document.getElementById('soul-anchor-toast');
+    if (!msg) return;
+    msg.style.display = 'block';
+    msg.innerText = 'SOUL ANCHOR USED';
+    clearTimeout(showSoulAnchorMessage._timer);
+    showSoulAnchorMessage._timer = setTimeout(() => {
+        msg.style.display = 'none';
+    }, 1500);
+}
+
+function getSoulHuskSpawn(collisionPoint) {
+    const clamp = (value) => Math.max(0, Math.min(19, value));
+    const candidate = collisionPoint
+        ? { x: clamp(collisionPoint.x), y: clamp(collisionPoint.y) }
+        : { x: snake[0].x, y: snake[0].y };
+    const blocked = snake.some(s => s.x === candidate.x && s.y === candidate.y)
+        || (food && food.x === candidate.x && food.y === candidate.y)
+        || (bonusFood && bonusFood.x === candidate.x && bonusFood.y === candidate.y);
+    if (!blocked) return candidate;
+    const fallbackSpots = getEmptyAppleSpots();
+    if (fallbackSpots.length === 0) return null;
+    const fallback = fallbackSpots[Math.floor(Math.random() * fallbackSpots.length)];
+    return { x: fallback.x, y: fallback.y };
+}
+
+function createSoulHusk(collisionPoint, lostLength) {
+    if (lostLength <= 0) return null;
+    const start = getSoulHuskSpawn(collisionPoint);
+    if (!start) return null;
+
+    const blocked = new Set();
+    snake.forEach(s => blocked.add(`${s.x},${s.y}`));
+    if (food) blocked.add(`${food.x},${food.y}`);
+    if (bonusFood) blocked.add(`${bonusFood.x},${bonusFood.y}`);
+
+    const segments = [];
+    const queue = [start];
+    const visited = new Set([`${start.x},${start.y}`]);
+    const dirs = [
+        { x: 1, y: 0 }, { x: -1, y: 0 },
+        { x: 0, y: 1 }, { x: 0, y: -1 }
+    ];
+
+    while (queue.length > 0 && segments.length < lostLength) {
+        const cell = queue.shift();
+        const key = `${cell.x},${cell.y}`;
+        if (!blocked.has(key)) segments.push(cell);
+
+        for (const d of dirs) {
+            const nx = cell.x + d.x;
+            const ny = cell.y + d.y;
+            if (nx < 0 || nx > 19 || ny < 0 || ny > 19) continue;
+            const nKey = `${nx},${ny}`;
+            if (visited.has(nKey)) continue;
+            visited.add(nKey);
+            queue.push({ x: nx, y: ny });
+        }
+    }
+
+    if (segments.length === 0) return null;
+    return { segments, restoreLength: segments.length };
+}
+
+function tryUseSoulInsurance(collisionPoint = null) {
+    if (!data.soulInsurance || soulAnchorUsedThisRun) return false;
+    soulAnchorUsedThisRun = true;
+    const reviveLength = Math.max(3, Math.floor(snake.length / 2));
+    const lostLength = Math.max(0, snake.length - reviveLength);
+    snake = createSpawnSnake(reviveLength);
+    dx = 1;
+    dy = 0;
+    inputQueue = [];
+    isPhasing = false;
+    soulAnchorPauseUntil = Date.now() + 1500;
+    if (data.fracturedSoul && lostLength > 0) {
+        soulHusk = createSoulHusk(collisionPoint, lostLength);
+    }
+    clearTimeout(phaseTimeout);
+    resetPhasePremonitionPreview();
+    showSoulAnchorMessage();
+    return true;
+}
+
+    function beginPhaseCooldown() {
+    const status = document.getElementById('phase-status');
+    const duration = 1500 + data.phasePower * 1000;
+    let cooldown = 1500 + Math.floor(duration * 1.25);
+    phaseCD = true;
+    phaseCooldownEndAt = Date.now() + cooldown;
+    status.innerText = 'PHASE: COOLDOWN';
+    status.style.color = 'red';
+    clearTimeout(phaseCooldownTimer);
+    phaseCooldownTimer = setTimeout(() => {
+        phaseCD = false;
+        phaseCooldownEndAt = 0;
+        phaseCharges = data.dualPhase ? 2 : 1;
+        updatePhaseUI();
+    }, cooldown);
+}
+
+    function triggerPhase() {
+    if (!data.hasPhase || isPaused) return false;
+    if (phaseCD || phaseCharges <= 0) return false;
+
+    isPhasing = true;
+    phaseCharges--;
+    const duration = 1500 + data.phasePower * 1000;
+    const status = document.getElementById('phase-status');
+    status.innerText = `PHASE: ACTIVE (${phaseCharges})`;
+    status.style.color = 'white';
+    resetPhasePremonitionPreview();
+
+    clearTimeout(phaseTimeout);
+    phaseTimeout = setTimeout(() => {
+        isPhasing = false;
+        if (phaseCharges <= 0) beginPhaseCooldown();
+        else updatePhaseUI();
+    }, duration);
+    return true;
+}
+
+let titleActive = true;
+
+window.addEventListener("load", () => {
+  if (data.lastPrestige > 0) {
+    const title = document.querySelector("#title-ui h1");
+    if (!title) return;
+    title.style.color = "var(--soul)";
+    title.style.textShadow = "0 0 35px var(--soul)";
+  }
+});
+/* ---------- TITLE BACKGROUND SNAKE ---------- */
+const tCanvas = document.getElementById("title-bg");
+const tCtx = tCanvas.getContext("2d");
+
+let tSnake = [{x:10,y:10},{x:9,y:10},{x:8,y:10}];
+let tFood = {x:5,y:5};
+let tDir = {x:1,y:0};
+let tColor = "#00fbff";
+let tTick = 0;
+
+function drawTitleBG() {
+  if (!titleActive) return;
+
+  tTick++;
+  if (tTick % 8 !== 0) { // ⬅ SLOWER (increase = slower)
+    requestAnimationFrame(drawTitleBG);
+    return;
+  }
+  // Move AI snake
+  const head = {...tSnake[0]};
+  if (Math.abs(tFood.x - head.x) > Math.abs(tFood.y - head.y))
+    tDir = {x: Math.sign(tFood.x - head.x), y:0};
+  else
+    tDir = {x:0, y: Math.sign(tFood.y - head.y)};
+
+  head.x = (head.x + tDir.x + 20) % 20;
+  head.y = (head.y + tDir.y + 20) % 20;
+  tSnake.unshift(head);
+
+  if (head.x === tFood.x && head.y === tFood.y) {
+    tFood = {
+      x: Math.floor(Math.random()*20),
+      y: Math.floor(Math.random()*20)
+    };
+  } else tSnake.pop();
+
+  // Draw
+  tCtx.clearRect(0,0,400,400);
+  tCtx.fillStyle = "#000";
+  tCtx.fillRect(0,0,400,400);
+
+  tCtx.fillStyle = "#ff2e63";
+  tCtx.fillRect(tFood.x*20+4, tFood.y*20+4, 12,12);
+
+  tSnake.forEach((s,i)=>{
+    tCtx.fillStyle = i===0 ? "#fff" : tColor;
+    tCtx.fillRect(s.x*20+2, s.y*20+2, 16,16);
+  });
+// Corrupted grid effect after prestige
+if (data.lastPrestige > 0) {
+  for (let i = 0; i < 30; i++) {
+    tCtx.fillStyle = `rgba(160,32,240,${Math.random()*0.2})`;
+    tCtx.fillRect(
+      Math.floor(Math.random() * 20) * 20,
+      Math.floor(Math.random() * 20) * 20,
+      20,
+      20
+    );
+  }
+}
+  requestAnimationFrame(drawTitleBG);
+}
+drawTitleBG();
+window.addEventListener("keydown", (e) => {
+  if (!titleActive) return;
+
+  // Only handle ENTER import if the title save box exists
+  if (e.key === "Enter") {
+    const box = document.getElementById("title-save-box");
+    if (!box) return;
+
+    const code = box.value.trim();
+    if (!code) return;
+
+    e.preventDefault();
+
+    try {
+      const decoded = JSON.parse(atob(code));
+
+      // Import save into main game data
+      data = Object.assign({}, defaultSaveData, decoded);
+      save();
+
+      // Apply imported skin to title background snake
+      if (data.skin) tColor = data.skin;
+
+      // Purple title glow if rebirthed/prestiged
+      if ((data.lastPrestige && data.lastPrestige > 0) || (data.shards && data.shards > 0)) {
+        const title = document.querySelector("#title-ui h1");
+        if (title) {
+          title.style.color = "var(--soul)";
+          title.style.textShadow = "0 0 30px var(--soul)";
+        }
+      }
+
+      box.value = "SAVE LOADED ✓ (Press START Then Reload)";
+    } catch (err) {
+      box.value = "INVALID SAVE CODE ✗";
+    }
+  }
+});
+
+    function gameLoop() {
+        
+        if (endingActive) return;
+        if (titleActive) { setTimeout(gameLoop, 100); return; }
+        if (isPaused || modalActive) { setTimeout(gameLoop, 100); return; }
+        if (Date.now() < soulAnchorPauseUntil) { setTimeout(gameLoop, 50); return; }
+        applyQueuedDirection();
+        
+        const head = {x: snake[0].x + dx, y: snake[0].y + dy};
+        
+        // Wall Logic
+        if (data.noWall) { if (head.x < 0) head.x = 19; else if (head.x > 19) head.x = 0; if (head.y < 0) head.y = 19; else if (head.y > 19) head.y = 0; } 
+        else if (head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) {
+            if (data.shedOnImpact) {
+                const shedAmount = getSheddingProfile().tails;
+                if (shedTailSegments(shedAmount)) {
+                    setTimeout(gameLoop, getLoopDelay());
+                    return;
+                }
+            }
+            if (tryUseSoulInsurance(head)) {
+                setTimeout(gameLoop, getLoopDelay());
+                return;
+            }
+            data.diedLastRun = true; save(); location.reload(); return;
+        }
+        
+        // Self Collision (Disabled if Phasing)
+        if (!isPhasing && isSelfCollisionFast(head)) {
+            const anchorSavedRun = tryUseSoulInsurance(head);
+            if (anchorSavedRun) {
+                setTimeout(gameLoop, getLoopDelay());
+                return;
+            }
+            const phaseSavedRun = data.immortalPhase && triggerPhase();
+            if (!phaseSavedRun) {
+                data.diedLastRun = true;
+                save();
+                location.reload();
+                return;
+            }
+        }
+        
+        snake.unshift(head);
+        // 🍎 Apple movement scaling with snake speed
+appleMoveTick++;
+
+// snake delay = Math.max(25, data.spd - tSpd)
+// smaller delay = faster snake
+const snakeDelay = getLoopDelay();
+
+// Convert snake speed into an apple tick rate
+// Faster snake = apple moves more often
+const speedFactor = (140 / snakeDelay); // 140 is your default-ish speed baseline
+
+// final apple move rate
+const appleMoveRate = Math.max(
+  2,
+  Math.floor(APPLE_MOVE_BASE / (1 + speedFactor * APPLE_SCALE))
+);
+
+if (appleMoveTick >= appleMoveRate) {
+  appleMoveTick = 0;
+  moveApple();
+}
+        const ateMainApple = head.x === food.x && head.y === food.y;
+        const ateBonusApple = bonusFood && head.x === bonusFood.x && head.y === bonusFood.y;
+        if (soulHusk && soulHusk.segments && soulHusk.segments.some(seg => seg.x === head.x && seg.y === head.y)) {
+            growCount += soulHusk.restoreLength;
+            soulHusk = null;
+        }
+        if (ateMainApple || ateBonusApple) {
+            if (!data.firstAppleEaten) {
+                data.firstAppleEaten = true;
+            }
+            // ✅ Clear death lore on first apple
+  const box = document.getElementById("save-code-box");
+  if (box && box.value && data.diedLastRun === false) {
+    box.value = "... The memory fades...";
+    setTimeout(() => box.value = "", 1200);
+  }
+            applyAppleRewards(1, true);
+            if ((data.sheddingLevel || 0) > 0) {
+                const profile = getSheddingProfile();
+                if (applesEatenThisRun % profile.apples === 0) {
+                    shedTailSegments(profile.tails);
+                }
+            }
+            if (data.phaseCharge && phaseCD) {
+                reducePhaseCooldown(0.5);
+            }
+
+            if (data.exp >= data.nxt) { data.lvl++; data.sp++; data.xpM += 0.2; data.exp = 0; data.nxt *= 1.10; }
+            if (ateMainApple) respawnMainApple();
+            if (ateBonusApple) respawnBonusApple();
+            resetPhasePremonitionPreview();
+            save(); updateUI();
+        } 
+        else {
+            const cannibalismIdx = data.cannibalism
+                ? shedTailPieces.findIndex(seg => seg.x === head.x && seg.y === head.y)
+                : -1;
+            if (cannibalismIdx >= 0) {
+                shedTailPieces.splice(cannibalismIdx, 1);
+                applyAppleRewards(2, true);
+                if (data.exp >= data.nxt) { data.lvl++; data.sp++; data.xpM += 0.2; data.exp = 0; data.nxt *= 1.10; }
+                save(); updateUI();
+            } else if (growCount > 0) {
+                growCount--;
+                if (data.growthMode === 'body' && snake.length > 2) {
+                    const neck = snake[1];
+                    snake.splice(1, 0, { x: neck.x, y: neck.y });
+                    snake.pop();
+                }
+            } else snake.pop();
+        }
+        
+        drawPlayfieldBackground();
+        const primaryAppleColor = getGoldAppleRenderColor(0);
+        ctx.fillStyle = primaryAppleColor;
+        if (data.neonEnabled) {
+            ctx.shadowColor = primaryAppleColor;
+            ctx.shadowBlur = 10;
+        } else {
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+        }
+        if (food) ctx.fillRect(food.x*grid+2, food.y*grid+2, grid-4, grid-4);
+        if (bonusFood) {
+            const bonusAppleColor = getGoldAppleRenderColor(1);
+            ctx.fillStyle = bonusAppleColor;
+            if (data.neonEnabled) ctx.shadowColor = bonusAppleColor;
+            ctx.fillRect(bonusFood.x*grid+2, bonusFood.y*grid+2, grid-4, grid-4);
+        }
+        ctx.shadowBlur = 0;
+        ctx.shadowColor = 'transparent';
+        if (soulHusk && soulHusk.segments) {
+            soulHusk.segments.forEach((seg, idx) => {
+                const pad = idx === 0 ? 3 : 4;
+                ctx.fillStyle = idx === 0 ? 'rgba(210, 120, 255, 0.95)' : 'rgba(165, 85, 240, 0.9)';
+                ctx.fillRect(seg.x * grid + pad, seg.y * grid + pad, grid - pad * 2, grid - pad * 2);
+                ctx.strokeStyle = 'rgba(245, 191, 255, 0.8)';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(seg.x * grid + pad, seg.y * grid + pad, grid - pad * 2, grid - pad * 2);
+            });
+        }
+        if (data.cannibalism && shedTailPieces.length > 0) {
+            shedTailPieces.forEach(seg => {
+                ctx.fillStyle = 'rgba(170, 95, 230, 0.9)';
+                ctx.fillRect(seg.x * grid + 5, seg.y * grid + 5, grid - 10, grid - 10);
+                ctx.strokeStyle = 'rgba(240, 200, 255, 0.9)';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(seg.x * grid + 5, seg.y * grid + 5, grid - 10, grid - 10);
+            });
+        }
+        if (isPhasing && data.phasePremonition && nextAppleLocation && Date.now() < phasePreviewUntil) {
+            ctx.strokeStyle = 'rgba(160,32,240,0.95)';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(nextAppleLocation.x*grid+3, nextAppleLocation.y*grid+3, grid-6, grid-6);
+            ctx.fillStyle = 'rgba(160,32,240,0.22)';
+            ctx.fillRect(nextAppleLocation.x*grid+4, nextAppleLocation.y*grid+4, grid-8, grid-8);
+        }
+        
+        // Visuals
+        if (data.neonEnabled && (data.owned.indexOf(data.skin) >= 3 || isPhasing || cheatActive)) { particles.push({x: snake[0].x*grid+10, y: snake[0].y*grid+10, life: 1, c: isPhasing ? "white" : getActiveSnakeColor()}); }
+        particles = data.neonEnabled
+            ? particles.filter(p => { p.life -= 0.1; ctx.globalAlpha = p.life; ctx.fillStyle = p.c; ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, Math.PI*2); ctx.fill(); return p.life > 0; })
+            : [];
+        ctx.globalAlpha = 1;
+        snake.forEach((s, i) => {
+            if (isPhasing) ctx.globalAlpha = 0.5;
+            if (data.skin === IMAGE_SKIN_ID && !isPhasing && !cheatActive) {
+                const isTail = i === snake.length - 1;
+                if (i === 0) {
+                    drawPatternedSnakeSegment(s, true);
+                } else if (isTail) {
+                    if (!drawTailSegmentImage(s)) drawPatternedSnakeSegment(s, false);
+                } else {
+                    if (!drawBodySegmentImage(s)) drawPatternedSnakeSegment(s, false);
+                }
+            } else {
+                drawPatternedSnakeSegment(s, i === 0);
+            }
+            ctx.globalAlpha = 1;
+        });
+        
+        setTimeout(gameLoop, getLoopDelay());
+    }
+
+    window.addEventListener("keydown", e => {
+        const tag = (e.target && e.target.tagName ? e.target.tagName : '').toLowerCase();
+        if (tag === 'input' || tag === 'textarea') return;
+        const key = e.key.toLowerCase();
+        const controls = getActiveControls();
+        if (key === controls.left) queueDirection({x:-1, y:0});
+        if (key === controls.up) queueDirection({x:0, y:-1});
+        if (key === controls.right) queueDirection({x:1, y:0});
+        if (key === controls.down) queueDirection({x:0, y:1});
+
+        if (isPhaseTriggerKey(e)) triggerPhase();
+        if(key==='r') resetGame();
+        if(key==='t') returnToTitle();
+        
+        // Konami code detection
+        buffer.push(e.key); buffer = buffer.slice(-10);
+        if (JSON.stringify(buffer) === JSON.stringify(['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'])) {
+            document.getElementById('cheat-area').style.display = 'block';
+            data.cheatActive = true; // Set cheat active state
+            data.cheatingUnlocked = true;
+            save();
+            updateUI();
+        }
+    });
+
+window.addEventListener("load", () => {
+  if (!data.titleSeen) return;
+  titleActive = false;
+  isPaused = false;
+  playDefaultMusic();
+
+  const ts = document.getElementById("title-screen");
+  if (ts) ts.remove();
+});
+
+function unlockDefaultMusic() {
+    playDefaultMusic();
+    document.removeEventListener("pointerdown", unlockDefaultMusic);
+    document.removeEventListener("keydown", unlockDefaultMusic);
+}
+
+document.addEventListener("pointerdown", unlockDefaultMusic);
+document.addEventListener("keydown", unlockDefaultMusic);
+
+function init() {
+    snake = [];
+    growCount = 0;
+    endingActive = false;
+    endingTriggered = false;
+    endingAwaitingClick = false;
+    queuedEndingText = "Thanks for playing Snake 2.";
+    const endingOverlay = document.getElementById('ending-overlay');
+    if (endingOverlay) endingOverlay.style.display = 'none';
+    creditsMusic.pause();
+    creditsMusic.currentTime = 0;
+    
+    runXPBoostBought = 0;
+    runXPBoostApple = 0;
+    applesEatenThisRun = 0;
+    shedTailPieces = [];
+    soulAnchorUsedThisRun = false;
+    soulAnchorPauseUntil = 0;
+    soulHusk = null;
+    phaseCharges = data.dualPhase ? 2 : 1;
+    
+    tSpd = 0;
+    tSz = 0;
+    tEvo = 0;
+
+    // ===== SHOW DEATH LORE ON NEW RUN =====
+if (data.diedLastRun) {
+  const box = document.getElementById("save-code-box");
+  if (box) {
+    const line = DEATH_LORE[Math.floor(Math.random() * DEATH_LORE.length)];
+    box.value = line;
+    box.rows = 4;
+  }
+
+  data.diedLastRun = false;
+  save();
+}
+
+
+    const effectiveSize = data.startSz + tSz;
+    snake = createSpawnSnake(effectiveSize);
+
+    dx = 1;
+    dy = 0;
+    inputQueue = [];
+    generateFood();
+}
+    
+    // Cookie Clicker style encoding (Base64)
+function exportSave() {
+    const saveString = btoa(JSON.stringify(data)); // Converts game object to Base64 symbols
+    document.getElementById('save-code-box').value = saveString;
+    alert("Save code exported! Copy it to a safe place.");
+}
+
+function importSave() {
+    const code = document.getElementById('save-code-box').value.trim();
+    if (!code) return alert("Please paste a code first.");
+    
+    try {
+        const decodedData = JSON.parse(atob(code)); // Converts symbols back to game object
+        data = Object.assign({}, defaultSaveData, decodedData);
+        save();
+        alert("Save imported successfully! Game will reload.");
+        location.reload();
+    } catch(e) {
+        alert("Invalid save code! Make sure you copied the full string.");
+    }
+}
+
+    init(); syncBlackMarketTabState(); updateUI(); applyLanguage(); gameLoop();
+const acc = document.querySelectorAll('.accordion');
+acc.forEach(a => {
+  const sectionTitle = (a.textContent || '').toLowerCase();
+  if (sectionTitle.includes('bank') || sectionTitle.includes('skin shop') || sectionTitle.includes('buff shop') || sectionTitle.includes('sp bundles') || sectionTitle.includes('permanent skills') || sectionTitle.includes('soul altar')) {
+    const initialPanel = a.nextElementSibling;
+    if (initialPanel) initialPanel.style.display = 'block';
+  }
+  a.addEventListener('click', () => {
+    a.classList.toggle('active');
+    const panel = a.nextElementSibling;
+    const opening = panel.style.display !== 'block';
+    panel.style.display = opening ? 'block' : 'none';
+    if (opening) {
+      requestAnimationFrame(() => {
+        a.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+    }
+  });
+});
+</script>
+</body>
+    </html>

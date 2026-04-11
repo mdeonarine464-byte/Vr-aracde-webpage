@@ -3,8 +3,56 @@
   <head>
     <title>A-Frame Arcade Row</title>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+
+      #snake-screen-overlay {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: min(78vw, 1000px);
+        height: min(78vh, 700px);
+        border: 8px solid #0f172a;
+        border-radius: 14px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.65);
+        background: #000;
+        display: none;
+        z-index: 10;
+      }
+
+      #snake-screen-overlay iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+        display: block;
+      }
+
+      #snake-screen-hint {
+        position: fixed;
+        bottom: 18px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 8px 12px;
+        border-radius: 8px;
+        color: #e5e7eb;
+        background: rgba(17, 24, 39, 0.9);
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        display: none;
+        z-index: 11;
+      }
+    </style>
   </head>
   <body>
+    <div id="snake-screen-overlay">
+      <iframe title="Snake Cabinet" src="Snake.html"></iframe>
+    </div>
+    <div id="snake-screen-hint">Press Esc to exit Snake cabinet view</div>
+
     <a-scene>
       <a-sky color="#101820"></a-sky>
       <a-plane position="0 0 -3" width="18" height="8" color="#1f2937"></a-plane>
@@ -23,14 +71,14 @@
       </a-entity>
 
       <!-- Cabinet 2: Snake -->
-      <a-entity position="-2 0 0">
+      <a-entity id="snake-cabinet" position="-2 0 0">
         <a-box position="0 0.6 -1" width="0.6" height="1.2" depth="0.6" color="#222"></a-box>
         <a-box position="0 0.9 -0.65" width="0.6" height="0.1" depth="0.3" rotation="-20 0 0" color="#444"></a-box>
         <a-box position="0 1.6 -0.8" width="0.6" height="0.2" depth="0.4" color="#333"></a-box>
         <a-box position="-0.31 0.9 -0.8" width="0.02" height="1.6" depth="0.8" color="#111"></a-box>
         <a-box position="0.31 0.9 -0.8" width="0.02" height="1.6" depth="0.8" color="#111"></a-box>
 
-        <a-plane position="0 1.3 -0.83" width="0.48" height="0.35" rotation="-10 0 0" color="#000"></a-plane>
+        <a-plane position="0 1.3 -0.83" width="0.48" height="0.35" rotation="-10 0 0" color="#001315"></a-plane>
         <a-text value="Snake\nSnake.html" position="-0.17 1.31 -0.81" rotation="-10 0 0" width="0.45" color="#00e5ff"></a-text>
       </a-entity>
 
@@ -70,7 +118,104 @@
         <a-text value="Pong\npong.html" position="-0.15 1.31 -0.81" rotation="-10 0 0" width="0.45" color="#ffe600"></a-text>
       </a-entity>
 
-      <a-camera position="0 1.6 2.5"></a-camera>
+      <a-entity
+        id="player-camera"
+        camera
+        position="0 1.6 2.5"
+        wasd-controls="acceleration: 18"
+        look-controls
+        snake-arcade-zoom
+      ></a-entity>
     </a-scene>
+
+    <script>
+      AFRAME.registerComponent("snake-arcade-zoom", {
+        init: function () {
+          this.snakeCabinet = document.querySelector("#snake-cabinet");
+          this.overlay = document.querySelector("#snake-screen-overlay");
+          this.hint = document.querySelector("#snake-screen-hint");
+          this.zoomDistance = 1.35;
+          this.releaseDistance = 1.8;
+          this.zoomed = false;
+
+          this.prevPosition = new AFRAME.THREE.Vector3();
+          this.cabinetPosition = new AFRAME.THREE.Vector3();
+
+          this.onEsc = (event) => {
+            if (event.key === "Escape") {
+              this.exitZoom();
+            }
+          };
+
+          window.addEventListener("keydown", this.onEsc);
+        },
+
+        tick: function () {
+          if (!this.snakeCabinet) {
+            return;
+          }
+
+          const player = this.el.object3D;
+          this.snakeCabinet.object3D.getWorldPosition(this.cabinetPosition);
+          const distance = player.position.distanceTo(this.cabinetPosition);
+
+          if (!this.zoomed && distance <= this.zoomDistance) {
+            this.enterZoom();
+          } else if (this.zoomed && distance > this.releaseDistance) {
+            this.exitZoom();
+          }
+        },
+
+        enterZoom: function () {
+          if (this.zoomed) {
+            return;
+          }
+
+          const lookControls = this.el.components["look-controls"];
+          const wasdControls = this.el.components["wasd-controls"];
+
+          this.prevPosition.copy(this.el.object3D.position);
+          this.el.setAttribute("position", "-2 1.35 -0.2");
+          this.el.object3D.lookAt(new AFRAME.THREE.Vector3(-2, 1.3, -1));
+
+          if (lookControls) {
+            lookControls.pause();
+          }
+          if (wasdControls) {
+            wasdControls.pause();
+          }
+
+          this.overlay.style.display = "block";
+          this.hint.style.display = "block";
+          this.zoomed = true;
+        },
+
+        exitZoom: function () {
+          if (!this.zoomed) {
+            return;
+          }
+
+          const lookControls = this.el.components["look-controls"];
+          const wasdControls = this.el.components["wasd-controls"];
+
+          this.el.object3D.position.copy(this.prevPosition);
+
+          if (lookControls) {
+            lookControls.play();
+          }
+          if (wasdControls) {
+            wasdControls.play();
+          }
+
+          this.overlay.style.display = "none";
+          this.hint.style.display = "none";
+          this.zoomed = false;
+        },
+
+        remove: function () {
+          window.removeEventListener("keydown", this.onEsc);
+        },
+      });
+    </script>
   </body>
 </html>

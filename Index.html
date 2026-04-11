@@ -1,39 +1,122 @@
-<!-- Include the A-Frame library -->
 <!DOCTYPE html>
 <html>
   <head>
-    <title>A-Frame Arcade Cabinet</title>
-    <!-- Include the A-Frame library -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A-Frame Arcade Row</title>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-html-shader@0.2.0/dist/aframe-html-shader.min.js"></script>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+        font-family: sans-serif;
+      }
+
+      /* Hidden iframe sources that power the cabinet screens */
+      .screen-source {
+        position: fixed;
+        width: 512px;
+        height: 512px;
+        left: -99999px;
+        top: 0;
+        border: 0;
+        background: #000;
+      }
+    </style>
   </head>
   <body>
+    <!-- Web pages rendered to cabinet screens (Dino intentionally skipped) -->
+    <iframe id="screen-pong" class="screen-source" src="pong.html" title="Pong"></iframe>
+    <iframe id="screen-breakout" class="screen-source" src="Breakout.html" title="Breakout"></iframe>
+    <iframe id="screen-tetris" class="screen-source" src="Tetris.html" title="Tetris"></iframe>
+    <iframe id="screen-snake" class="screen-source" src="Snake.html" title="Snake"></iframe>
+    <iframe id="screen-snake2" class="screen-source" src="Snake2.html" title="Snake 2"></iframe>
+
     <a-scene>
-      <!-- Background environment -->
-      <a-sky color="#ECECEC"></a-sky>
+      <a-sky color="#141b2d"></a-sky>
+      <a-plane position="0 0 -4" rotation="-90 0 0" width="18" height="18" color="#2c3345"></a-plane>
 
-      <!-- MAIN CABINET BODY -->
-      <!-- The lower base of the machine -->
-      <a-box position="0 0.6 -1" width="0.6" height="1.2" depth="0.6" color="#222"></a-box>
+      <!-- Cabinet 1 -->
+      <a-entity position="-4 0 -6">
+        <a-box position="0 0.6 0" width="1" height="1.2" depth="1" color="#252525"></a-box>
+        <a-box position="0 0.95 0.32" width="1" height="0.12" depth="0.45" rotation="-20 0 0" color="#474747"></a-box>
+        <a-box position="0 1.35 0.22" width="0.9" height="0.62" depth="0.1" rotation="-10 0 0" color="#000"></a-box>
+        <a-entity
+          position="0 1.35 0.275"
+          rotation="-10 0 0"
+          geometry="primitive: plane; width: 0.78; height: 0.46"
+          material="shader: html; target: #screen-pong; fps: 15; ratio: width"
+        ></a-entity>
+        <a-box position="0 1.72 0.1" width="1" height="0.23" depth="0.55" color="#393939"></a-box>
+        <a-text value="PONG" align="center" position="0 1.72 0.4" color="#00e6ff" width="2"></a-text>
+      </a-entity>
 
-      <!-- CONTROL PANEL -->
-      <!-- Tilted box for the joystick/buttons area -->
-      <a-box position="0 0.9 -0.65" width="0.6" height="0.1" depth="0.3" rotation="-20 0 0" color="#444"></a-box>
+      <!-- Cabinet 2 -->
+      <a-entity position="-2 0 -6">
+        <a-box position="0 0.6 0" width="1" height="1.2" depth="1" color="#1f2a44"></a-box>
+        <a-box position="0 0.95 0.32" width="1" height="0.12" depth="0.45" rotation="-20 0 0" color="#2b3e67"></a-box>
+        <a-box position="0 1.35 0.22" width="0.9" height="0.62" depth="0.1" rotation="-10 0 0" color="#000"></a-box>
+        <a-entity
+          position="0 1.35 0.275"
+          rotation="-10 0 0"
+          geometry="primitive: plane; width: 0.78; height: 0.46"
+          material="shader: html; target: #screen-breakout; fps: 15; ratio: width"
+        ></a-entity>
+        <a-box position="0 1.72 0.1" width="1" height="0.23" depth="0.55" color="#334f84"></a-box>
+        <a-text value="BREAKOUT" align="center" position="0 1.72 0.4" color="#ffe082" width="2"></a-text>
+      </a-entity>
 
-      <!-- SCREEN AREA -->
-      <!-- Black inset representing the monitor -->
-      <a-box position="0 1.3 -0.85" width="0.5" height="0.4" depth="0.1" rotation="-10 0 0" color="#000"></a-box>
+      <!-- Cabinet 3 -->
+      <a-entity position="0 0 -6">
+        <a-box position="0 0.6 0" width="1" height="1.2" depth="1" color="#3a1f41"></a-box>
+        <a-box position="0 0.95 0.32" width="1" height="0.12" depth="0.45" rotation="-20 0 0" color="#5d2e66"></a-box>
+        <a-box position="0 1.35 0.22" width="0.9" height="0.62" depth="0.1" rotation="-10 0 0" color="#000"></a-box>
+        <a-entity
+          position="0 1.35 0.275"
+          rotation="-10 0 0"
+          geometry="primitive: plane; width: 0.78; height: 0.46"
+          material="shader: html; target: #screen-tetris; fps: 15; ratio: width"
+        ></a-entity>
+        <a-box position="0 1.72 0.1" width="1" height="0.23" depth="0.55" color="#7d3e86"></a-box>
+        <a-text value="TETRIS" align="center" position="0 1.72 0.4" color="#c3f73a" width="2"></a-text>
+      </a-entity>
 
-      <!-- TOP MARQUEE -->
-      <!-- The header area where titles usually go -->
-      <a-box position="0 1.6 -0.8" width="0.6" height="0.2" depth="0.4" color="#333"></a-box>
+      <!-- Cabinet 4 -->
+      <a-entity position="2 0 -6">
+        <a-box position="0 0.6 0" width="1" height="1.2" depth="1" color="#304326"></a-box>
+        <a-box position="0 0.95 0.32" width="1" height="0.12" depth="0.45" rotation="-20 0 0" color="#486838"></a-box>
+        <a-box position="0 1.35 0.22" width="0.9" height="0.62" depth="0.1" rotation="-10 0 0" color="#000"></a-box>
+        <a-entity
+          position="0 1.35 0.275"
+          rotation="-10 0 0"
+          geometry="primitive: plane; width: 0.78; height: 0.46"
+          material="shader: html; target: #screen-snake; fps: 15; ratio: width"
+        ></a-entity>
+        <a-box position="0 1.72 0.1" width="1" height="0.23" depth="0.55" color="#5b8148"></a-box>
+        <a-text value="SNAKE" align="center" position="0 1.72 0.4" color="#89ff67" width="2"></a-text>
+      </a-entity>
 
-      <!-- SIDE PANELS -->
-      <!-- Thin walls to give it the classic silhouette -->
-      <a-box position="-0.31 0.9 -0.8" width="0.02" height="1.6" depth="0.8" color="#111"></a-box>
-      <a-box position="0.31 0.9 -0.8" width="0.02" height="1.6" depth="0.8" color="#111"></a-box>
+      <!-- Cabinet 5 -->
+      <a-entity position="4 0 -6">
+        <a-box position="0 0.6 0" width="1" height="1.2" depth="1" color="#443016"></a-box>
+        <a-box position="0 0.95 0.32" width="1" height="0.12" depth="0.45" rotation="-20 0 0" color="#6c4a1f"></a-box>
+        <a-box position="0 1.35 0.22" width="0.9" height="0.62" depth="0.1" rotation="-10 0 0" color="#000"></a-box>
+        <a-entity
+          position="0 1.35 0.275"
+          rotation="-10 0 0"
+          geometry="primitive: plane; width: 0.78; height: 0.46"
+          material="shader: html; target: #screen-snake2; fps: 15; ratio: width"
+        ></a-entity>
+        <a-box position="0 1.72 0.1" width="1" height="0.23" depth="0.55" color="#8b5f26"></a-box>
+        <a-text value="SNAKE 2" align="center" position="0 1.72 0.4" color="#ffdb8a" width="2"></a-text>
+      </a-entity>
 
-      <!-- Camera for viewing -->
-      <a-camera position="0 1.6 1"></a-camera>
+      <a-entity position="0 1.6 2.6">
+        <a-camera wasd-controls="acceleration: 25" look-controls>
+          <a-cursor color="#fff"></a-cursor>
+        </a-camera>
+      </a-entity>
     </a-scene>
   </body>
 </html>

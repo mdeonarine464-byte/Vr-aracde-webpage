@@ -3,8 +3,27 @@
   <head>
     <title>A-Frame Arcade Row</title>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-html-shader@1.1.0/dist/aframe-html-shader.min.js"></script>
+    <style>
+      .screen-source {
+        position: fixed;
+        left: -99999px;
+        top: 0;
+        width: 400px;
+        height: 320px;
+        border: 0;
+        background: #000;
+      }
+    </style>
   </head>
   <body>
+    <!-- Hidden iframe sources rendered onto cabinet screens -->
+    <iframe id="breakoutScreen" class="screen-source" src="Breakout.html" title="Breakout"></iframe>
+    <iframe id="snakeScreen" class="screen-source" src="Snake.html" title="Snake"></iframe>
+    <iframe id="snake2Screen" class="screen-source" src="Snake2.html" title="Snake 2"></iframe>
+    <iframe id="tetrisScreen" class="screen-source" src="Tetris.html" title="Tetris"></iframe>
+    <iframe id="pongScreen" class="screen-source" src="pong.html" title="Pong"></iframe>
+
     <a-scene>
       <a-sky color="#101820"></a-sky>
       <a-plane position="0 0 -3" width="18" height="8" color="#1f2937"></a-plane>
@@ -18,8 +37,8 @@
         <a-box position="-0.31 0.9 -0.8" width="0.02" height="1.6" depth="0.8" color="#111"></a-box>
         <a-box position="0.31 0.9 -0.8" width="0.02" height="1.6" depth="0.8" color="#111"></a-box>
 
-        <a-plane position="0 1.3 -0.83" width="0.48" height="0.35" rotation="-10 0 0" color="#000"></a-plane>
-        <a-text value="Breakout\nBreakout.html" position="-0.2 1.31 -0.81" rotation="-10 0 0" width="0.45" color="#39ff14"></a-text>
+        <a-plane position="0 1.3 -0.83" width="0.48" height="0.35" rotation="-10 0 0"
+                 material="shader: html; target: #breakoutScreen; fps: 30"></a-plane>
       </a-entity>
 
       <!-- Cabinet 2: Snake -->
@@ -30,8 +49,8 @@
         <a-box position="-0.31 0.9 -0.8" width="0.02" height="1.6" depth="0.8" color="#111"></a-box>
         <a-box position="0.31 0.9 -0.8" width="0.02" height="1.6" depth="0.8" color="#111"></a-box>
 
-        <a-plane position="0 1.3 -0.83" width="0.48" height="0.35" rotation="-10 0 0" color="#000"></a-plane>
-        <a-text value="Snake\nSnake.html" position="-0.17 1.31 -0.81" rotation="-10 0 0" width="0.45" color="#00e5ff"></a-text>
+        <a-plane position="0 1.3 -0.83" width="0.48" height="0.35" rotation="-10 0 0"
+                 material="shader: html; target: #snakeScreen; fps: 30"></a-plane>
       </a-entity>
 
       <!-- Cabinet 3: Snake2 -->
@@ -42,8 +61,8 @@
         <a-box position="-0.31 0.9 -0.8" width="0.02" height="1.6" depth="0.8" color="#111"></a-box>
         <a-box position="0.31 0.9 -0.8" width="0.02" height="1.6" depth="0.8" color="#111"></a-box>
 
-        <a-plane position="0 1.3 -0.83" width="0.48" height="0.35" rotation="-10 0 0" color="#000"></a-plane>
-        <a-text value="Snake 2\nSnake2.html" position="-0.19 1.31 -0.81" rotation="-10 0 0" width="0.45" color="#ff7b00"></a-text>
+        <a-plane position="0 1.3 -0.83" width="0.48" height="0.35" rotation="-10 0 0"
+                 material="shader: html; target: #snake2Screen; fps: 30"></a-plane>
       </a-entity>
 
       <!-- Cabinet 4: Tetris -->
@@ -54,8 +73,8 @@
         <a-box position="-0.31 0.9 -0.8" width="0.02" height="1.6" depth="0.8" color="#111"></a-box>
         <a-box position="0.31 0.9 -0.8" width="0.02" height="1.6" depth="0.8" color="#111"></a-box>
 
-        <a-plane position="0 1.3 -0.83" width="0.48" height="0.35" rotation="-10 0 0" color="#000"></a-plane>
-        <a-text value="Tetris\nTetris.html" position="-0.16 1.31 -0.81" rotation="-10 0 0" width="0.45" color="#f542aa"></a-text>
+        <a-plane position="0 1.3 -0.83" width="0.48" height="0.35" rotation="-10 0 0"
+                 material="shader: html; target: #tetrisScreen; fps: 30"></a-plane>
       </a-entity>
 
       <!-- Cabinet 5: Pong -->
@@ -66,8 +85,8 @@
         <a-box position="-0.31 0.9 -0.8" width="0.02" height="1.6" depth="0.8" color="#111"></a-box>
         <a-box position="0.31 0.9 -0.8" width="0.02" height="1.6" depth="0.8" color="#111"></a-box>
 
-        <a-plane position="0 1.3 -0.83" width="0.48" height="0.35" rotation="-10 0 0" color="#000"></a-plane>
-        <a-text value="Pong\npong.html" position="-0.15 1.31 -0.81" rotation="-10 0 0" width="0.45" color="#ffe600"></a-text>
+        <a-plane position="0 1.3 -0.83" width="0.48" height="0.35" rotation="-10 0 0"
+                 material="shader: html; target: #pongScreen; fps: 30"></a-plane>
       </a-entity>
 
       <a-camera position="0 1.6 2.5"></a-camera>

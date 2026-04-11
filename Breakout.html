@@ -1,6 +1,4 @@
-
-
-"<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
   <title>Breakout</title>
@@ -17,11 +15,12 @@
     align-items: center;
     justify-content: center;
   }
+  canvas { width: min(100vw, 400px); height: auto; }
   </style>
 </head>
 <body style="flex-direction: column;">
-  <div  style="color: white; font-family: monospace; font-size: 32px; margin-bottom: 10px;">Press Space To Start</div>
-<canvas width="400" height="500" id="game"></canvas>
+  <div style="color: white; font-family: monospace; font-size: 24px; margin-bottom: 10px;">Press Space To Start</div>
+  <canvas width="400" height="500" id="game"></canvas>
 <script>
 const canvas = document.getElementById('game');
 const context = canvas.getContext('2d');
@@ -246,4 +245,4 @@ document.addEventListener('keyup', function(e) {
 requestAnimationFrame(loop);
 </script>
 </body>
-</html>"
+</html>

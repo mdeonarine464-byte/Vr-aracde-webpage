@@ -10,15 +10,18 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-direction: column; /* Allows the H1 and Canvas to stack */
     color: white;
     font-family: Arial, sans-serif;
+  }
+
+  canvas {
+    width: min(100vw, 640px);
+    height: auto;
   }
   </style>
 </head>
 <body>
-<h1>PONG</h1>
-<canvas width="750" height="585" id="game"></canvas>
+<canvas width="640" height="480" id="game"></canvas>
 
 <script>
 const canvas = document.getElementById('game');

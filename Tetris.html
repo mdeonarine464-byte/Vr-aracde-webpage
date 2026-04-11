@@ -1,5 +1,4 @@
-<h1>Welcome to my webpage</h1>
-"<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
   <title>Tetris</title>
@@ -19,11 +18,13 @@
 
   canvas {
     border: 1px solid white;
+    width: min(100vw, 320px);
+    height: auto;
   }
   </style>
 </head>
 <body style="flex-direction: column;">
-  <div id="score" style="color: white; font-family: monospace; font-size: 32px; margin-bottom: 10px;">Score: 0</div>
+  <div id="score" style="color: white; font-family: monospace; font-size: 24px; margin-bottom: 10px;">Score: 0</div>
   <canvas width="320" height="640" id="game"></canvas>
 <script>
 // https://tetris.fandom.com/wiki/Tetris_Guideline
@@ -322,4 +323,4 @@ document.addEventListener('keydown', function(e) {
 rAF = requestAnimationFrame(loop);
 </script>
 </body>
-</html>"
+</html>

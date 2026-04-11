@@ -1,38 +1,28 @@
+<h1></h1>
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Snake</title>
-  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+  <title></title>
   <style>
-    html, body { margin: 0; height: 100%; background: #020202; overflow: hidden; font-family: Arial, sans-serif; }
-    .scene-wrap { position: fixed; inset: 0; z-index: 0; }
-    .game-overlay { position: fixed; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center; flex-direction: column; color: #fff; pointer-events: none; }
-    .hud, .hud-title { margin: 0 0 10px; font-size: 32px; font-family: monospace; text-shadow: 0 0 10px #000; }
-    #game { pointer-events: auto; border: 4px solid #181818; box-shadow: 0 0 28px rgba(0,0,0,.8); background: #000; max-width: 90vw; max-height: 80vh; }
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
+
+  body {
+    background: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+  }
+  canvas {
+    border: 1px solid white;
+  }
   </style>
 </head>
 <body>
-  <div class="scene-wrap" aria-hidden="true">
-    <a-scene embedded background="color: #050505">
-      <a-entity position="0 0.2 -3">
-        <a-box position="0 0 0" depth="1" width="2.6" height="2.9" color="#1a1a1a"></a-box>
-        <a-box position="0 0.2 0.53" depth="0.04" width="1.8" height="1.3" color="#0b0b0b"></a-box>
-        <a-box position="0 -0.85 0.53" depth="0.06" width="1.2" height="0.22" color="#202020"></a-box>
-        <a-text value="SNAKE" align="center" color="#f5d46b" position="0 1.1 0.55" width="3"></a-text>
-      </a-entity>
-      <a-plane rotation="-90 0 0" width="20" height="20" color="#0f0f0f"></a-plane>
-      <a-entity light="type: ambient; intensity: 0.8"></a-entity>
-      <a-entity light="type: point; intensity: 0.8; distance: 20" position="0 3 2"></a-entity>
-      <a-camera position="0 1.3 0"></a-camera>
-    </a-scene>
-  </div>
-
-  <div class="game-overlay">
-    
-    <canvas width="400" height="400" id="game"></canvas>
-  </div>
-
+<canvas width="400" height="400" id="game"></canvas>
 <script>
 var canvas = document.getElementById('game');
 var context = canvas.getContext('2d');
